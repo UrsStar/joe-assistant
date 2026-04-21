@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Joe Assistant</title>
+    <title>Joe Assistant • Fixed</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
@@ -109,6 +109,8 @@
             position: relative;
             overflow: hidden;
             box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            color: white;
+            font-size: 24px;
         }
 
         .new-chat-btn:hover {
@@ -386,6 +388,7 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 10px 30px rgba(0,212,255,0.4);
             font-size: 20px;
+            color: white;
         }
 
         .send-btn:hover {
@@ -523,24 +526,254 @@
     </div>
 
     <script>
-        // State
-        let isTyping = false;
-        let typingTimeout;
+        (function(){
+            "use strict";
 
-        // Initialize everything
-        document.addEventListener('DOMContentLoaded', function() {
-            initParticles();
-            initCursor();
-            initEyeTracking();
-            initInputEvents();
-            initSidebar();
-        });
+            // ---------- STATE ----------
+            let isTyping = false;
+            let typingTimeout = null;
+            const messagesContainer = document.getElementById('messages');
+            const messageInput = document.getElementById('messageInput');
+            const joeFace = document.getElementById('joeFace');
+            const leftPupil = document.getElementById('leftPupil');
+            const rightPupil = document.getElementById('rightPupil');
+            const joeMouth = document.getElementById('joeMouth');
 
-        // Live animated background particles
-        function initParticles() {
-            const container = document.getElementById('particles');
-            for (let i = 0; i < 60; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.animationDuration = (Math.random() * 15 +
+            // ---------- INITIALIZATION ----------
+            document.addEventListener('DOMContentLoaded', function() {
+                initParticles();
+                initCursor();
+                initEyeTracking();
+                initInputEvents();
+                initSidebar();
+            });
+
+            // ----- PARTICLES (FIXED & COMPLETED) -----
+            function initParticles() {
+                const container = document.getElementById('particles');
+                const particleCount = 60;
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    
+                    // Random size between 10px and 60px
+                    const size = Math.random() * 50 + 10;
+                    particle.style.width = size + 'px';
+                    particle.style.height = size + 'px';
+                    
+                    particle.style.left = Math.random() * 100 + '%';
+                    // Stagger animation start times
+                    particle.style.animationDelay = (Math.random() * -25) + 's';
+                    particle.style.animationDuration = (Math.random() * 15 + 15) + 's'; // 15-30s
+                    
+                    container.appendChild(particle);
+                }
+            }
+
+            // ----- CUSTOM CURSOR -----
+            function initCursor() {
+                const cursor = document.getElementById('cursor');
+                document.addEventListener('mousemove', (e) => {
+                    cursor.style.left = e.clientX - 12 + 'px';
+                    cursor.style.top = e.clientY - 12 + 'px';
+                });
+                document.addEventListener('mouseleave', () => {
+                    cursor.style.opacity = '0';
+                });
+                document.addEventListener('mouseenter', () => {
+                    cursor.style.opacity = '1';
+                });
+                // Scale on clickable elements
+                document.querySelectorAll('button, .joe-face, .input-field').forEach(el => {
+                    el.addEventListener('mouseenter', () => cursor.style.transform = 'scale(1.5)');
+                    el.addEventListener('mouseleave', () => cursor.style.transform = 'scale(1)');
+                });
+            }
+
+            // ----- EYE TRACKING (FOLLOW CURSOR) -----
+            function initEyeTracking() {
+                if (!joeFace || !leftPupil || !rightPupil) return;
+                
+                document.addEventListener('mousemove', (e) => {
+                    // Get Joe face bounding box
+                    const faceRect = joeFace.getBoundingClientRect();
+                    const faceCenterX = faceRect.left + faceRect.width / 2;
+                    const faceCenterY = faceRect.top + faceRect.height / 2;
+                    
+                    // Calculate angle and distance (limit movement)
+                    const maxMove = 12; // pixels max offset
+                    let deltaX = e.clientX - faceCenterX;
+                    let deltaY = e.clientY - faceCenterY;
+                    const distance = Math.sqrt(deltaX*deltaX + deltaY*deltaY);
+                    
+                    let moveX = 0, moveY = 0;
+                    if (distance > 20) {
+                        const angle = Math.atan2(deltaY, deltaX);
+                        moveX = Math.cos(angle) * maxMove;
+                        moveY = Math.sin(angle) * maxMove;
+                    }
+                    
+                    // Apply to pupils (relative to center of eye)
+                    leftPupil.style.transform = `translate(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px))`;
+                    rightPupil.style.transform = `translate(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px))`;
+                });
+            }
+
+            // ----- INPUT EVENTS (ENTER KEY) -----
+            function initInputEvents() {
+                messageInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                    }
+                });
+            }
+
+            // ----- SIDEBAR HOVER EXPAND (optional) -----
+            function initSidebar() {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.addEventListener('mouseenter', () => sidebar.classList.add('expanded'));
+                sidebar.addEventListener('mouseleave', () => sidebar.classList.remove('expanded'));
+            }
+
+            // ----- NEW CHAT (CLEAR MESSAGES EXCEPT FIRST) -----
+            window.newChat = function() {
+                const messages = document.getElementById('messages');
+                // Keep only the first greeting message
+                while (messages.children.length > 1) {
+                    messages.removeChild(messages.lastChild);
+                }
+                // Reset typing state if any
+                if (isTyping) {
+                    clearTimeout(typingTimeout);
+                    removeTypingIndicator();
+                    isTyping = false;
+                    joeFace.classList.remove('joe-talking');
+                }
+            };
+
+            // ----- SEND MESSAGE (MAIN CHAT LOGIC) -----
+            window.sendMessage = function() {
+                const text = messageInput.value.trim();
+                if (!text) return;
+                if (isTyping) {
+                    // If already typing, maybe queue? For simplicity, ignore.
+                    return;
+                }
+                
+                // Add user message
+                addMessage(text, 'user');
+                messageInput.value = '';
+                
+                // Show typing indicator and Joe talking
+                showTypingIndicator();
+                joeFace.classList.add('joe-talking');
+                isTyping = true;
+                
+                // Simulate bot response delay (1.2 - 2.5 seconds)
+                const responseDelay = 1200 + Math.random() * 1300;
+                typingTimeout = setTimeout(() => {
+                    removeTypingIndicator();
+                    const botResponse = generateBotResponse(text);
+                    addMessage(botResponse, 'bot');
+                    joeFace.classList.remove('joe-talking');
+                    isTyping = false;
+                    typingTimeout = null;
+                }, responseDelay);
+            };
+
+            // ----- ADD MESSAGE TO CHAT -----
+            function addMessage(content, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}-message`;
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'message-content';
+                contentDiv.textContent = content;
+                
+                messageDiv.appendChild(contentDiv);
+                messagesContainer.appendChild(messageDiv);
+                
+                // Scroll to bottom
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+
+            // ----- TYPING INDICATOR -----
+            function showTypingIndicator() {
+                removeTypingIndicator(); // ensure only one
+                
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'message bot-message typing-indicator';
+                typingDiv.id = 'typingIndicator';
+                
+                const avatar = document.createElement('div');
+                avatar.className = 'typing-avatar';
+                
+                const dotsContainer = document.createElement('div');
+                dotsContainer.className = 'typing-dots';
+                for (let i = 0; i < 3; i++) {
+                    const dot = document.createElement('span');
+                    dot.className = 'typing-dot';
+                    dotsContainer.appendChild(dot);
+                }
+                
+                typingDiv.appendChild(avatar);
+                typingDiv.appendChild(dotsContainer);
+                messagesContainer.appendChild(typingDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+
+            function removeTypingIndicator() {
+                const indicator = document.getElementById('typingIndicator');
+                if (indicator) indicator.remove();
+            }
+
+            // ----- SIMPLE BOT RESPONSE GENERATOR (you can replace with real AI) -----
+            function generateBotResponse(userMessage) {
+                const msg = userMessage.toLowerCase();
+                
+                // Fun / witty responses
+                if (msg.includes('hello') || msg.includes('hi') || msg.includes('hey')) {
+                    return "Hey there! 😊 Ready to chat? I'm all ears (or eyes 👀).";
+                }
+                if (msg.includes('how are you')) {
+                    return "I'm running on pure JavaScript and good vibes! ⚡ How about you?";
+                }
+                if (msg.includes('your name') || msg.includes('who are you')) {
+                    return "I'm Joe — your friendly AI sidekick. Think of me as a glowing brain with a face. 🧠✨";
+                }
+                if (msg.includes('joke')) {
+                    const jokes = [
+                        "Why do programmers prefer dark mode? Because light attracts bugs! 🐛",
+                        "I told my code to go to sleep… now it's in a RESTful state. 😴",
+                        "Why did the AI break up with the database? Too many relationship issues. 💔"
+                    ];
+                    return jokes[Math.floor(Math.random() * jokes.length)];
+                }
+                if (msg.includes('help') || msg.includes('what can you do')) {
+                    return "I can chat, tell jokes, give advice, or just keep you company. Ask me anything! 🚀";
+                }
+                if (msg.includes('thank')) {
+                    return "You're very welcome! 🌟 That's what I'm here for.";
+                }
+                if (msg.includes('bye') || msg.includes('goodbye')) {
+                    return "See you later! Don't forget to come back — I'll miss you. 👋💙";
+                }
+                
+                // Echo with a twist
+                const responses = [
+                    `Interesting! Tell me more about "${userMessage.slice(0, 30)}${userMessage.length>30?'...':''}" 🤔`,
+                    "I'm processing that… and honestly, it's fascinating. 🌈",
+                    "Hmm, let me think. 🤖 That's a good question!",
+                    "I'd love to dive deeper into that. What's the context?",
+                    "I'm not sure I have the perfect answer, but I'm definitely intrigued. 💡"
+                ];
+                return responses[Math.floor(Math.random() * responses.length)];
+            }
+
+            // Ensure any existing typing is cleared on new chat (already in newChat)
+            // Also fix potential memory leaks
+        })();
+    </script>
+</body>
+</html>
