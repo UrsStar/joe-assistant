@@ -1,254 +1,93 @@
 ```html
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Joe Assistant</title>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#0a0a0f;color:#e8e8e8;font-family:'Segoe UI',sans-serif;height:100vh;overflow:hidden}
-
-#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0}
-
-#chat{
-position:absolute;
-bottom:80px;
-left:20px;
-right:20px;
-top:120px;
-overflow-y:auto;
-z-index:2;
+body {
+  background:#0a0a0f;
+  color:white;
+  font-family:Arial;
+  margin:0;
 }
 
-.message-row{margin-bottom:12px}
-.msg-body{background:#111;padding:10px;border-radius:10px}
-
-#input{
-position:absolute;
-bottom:20px;
-left:20px;
-right:20px;
-padding:12px;
-border:none;
-border-radius:10px;
-background:#111;
-color:white;
-resize:none;
-z-index:2;
+#chat {
+  height:80vh;
+  overflow:auto;
+  padding:10px;
 }
 
-#joe-face{
-position:absolute;
-top:20px;
-left:20px;
-width:80px;
-cursor:pointer;
-z-index:2;
+.msg {
+  background:#111;
+  padding:10px;
+  margin:5px 0;
+  border-radius:8px;
 }
 
-#joe-bubble{
-position:absolute;
-top:100px;
-left:20px;
-background:#111;
-padding:10px;
-border-radius:10px;
-display:none;
-z-index:2;
+#input {
+  width:100%;
+  height:60px;
+  border:none;
+  outline:none;
+  padding:10px;
+  font-size:16px;
 }
-#joe-bubble.show{display:block}
 </style>
 </head>
 
 <body>
 
-<canvas id="bg-canvas"></canvas>
-
-<div id="joe-face" onclick="toggleBubble()">
-<svg viewBox="0 0 100 100">
-<circle cx="50" cy="50" r="46" fill="#0d0d1e" stroke="#00aaff"/>
-<circle id="pupil-left" cx="34" cy="42" r="6" fill="#00aaff"/>
-<circle id="pupil-right" cx="66" cy="42" r="6" fill="#00aaff"/>
-<path id="joe-mouth" d="M 34 67 Q 50 80 66 67" stroke="#19c37d" stroke-width="2"/>
-</svg>
-</div>
-
-<div id="joe-bubble">⚡ I'm Joe.</div>
-
 <div id="chat"></div>
-
-<textarea id="input" placeholder="Type a message..."></textarea>
+<textarea id="input" placeholder="Type and press Enter..."></textarea>
 
 <script>
+// ===== BASIC CHAT =====
+let messages = [];
 
-// ================= SAFE STORAGE =================
-function safeLoad(key, fallback){
-  try{
-    const data = JSON.parse(localStorage.getItem(key));
-    return data || fallback;
-  }catch{
-    return fallback;
-  }
+function render() {
+  const chat = document.getElementById("chat");
+  chat.innerHTML = messages.map(m => `<div class="msg">${m}</div>`).join("");
+  chat.scrollTop = chat.scrollHeight;
 }
 
-let chats = safeLoad('joe-chats', [
-  {id:'chat-1',messages:[]}
-]);
-
-let currentChatId = 'chat-1';
-let isTyping = false;
-
-// ================= BACKGROUND =================
-const c = document.getElementById('bg-canvas');
-const ctx = c.getContext('2d');
-
-function resize(){
-  c.width = innerWidth;
-  c.height = innerHeight;
-}
-resize();
-addEventListener('resize',resize);
-
-let particles = Array.from({length:70},()=>({
-  x:Math.random()*innerWidth,
-  y:Math.random()*innerHeight,
-  vx:(Math.random()-0.5)*0.5,
-  vy:(Math.random()-0.5)*0.5
-}));
-
-function draw(){
-  ctx.clearRect(0,0,c.width,c.height);
-  particles.forEach(p=>{
-    p.x+=p.vx;
-    p.y+=p.vy;
-    if(p.x<0||p.x>c.width)p.vx*=-1;
-    if(p.y<0||p.y>c.height)p.vy*=-1;
-
-    ctx.beginPath();
-    ctx.arc(p.x,p.y,2,0,Math.PI*2);
-    ctx.fillStyle="#00aaff";
-    ctx.fill();
-  });
-  requestAnimationFrame(draw);
-}
-draw();
-
-// ================= EYES =================
-const pupilL = document.getElementById('pupil-left');
-const pupilR = document.getElementById('pupil-right');
-
-function animateEyes(){
-  const dx = (Math.random()-0.5)*4;
-  const dy = (Math.random()-0.5)*4;
-
-  pupilL.setAttribute('cx',34+dx);
-  pupilL.setAttribute('cy',42+dy);
-  pupilR.setAttribute('cx',66+dx);
-  pupilR.setAttribute('cy',42+dy);
-
-  requestAnimationFrame(animateEyes);
-}
-animateEyes();
-
-// ================= MARKDOWN SAFE =================
-function safeMarkdown(text){
-  const raw = marked.parse(text);
-  const div = document.createElement('div');
-  div.innerHTML = raw;
-  div.querySelectorAll('script').forEach(e=>e.remove());
-  return div.innerHTML;
-}
-
-// ================= CHAT =================
-function render(){
-  const chat = document.getElementById('chat');
-  const data = chats.find(c=>c.id===currentChatId);
-
-  chat.innerHTML = data.messages.map(m=>`
-    <div class="message-row">
-      <div class="msg-body">${safeMarkdown(m.content)}</div>
-    </div>
-  `).join('');
-
-  requestAnimationFrame(()=>{
-    chat.scrollTop = chat.scrollHeight;
-  });
-}
-
-function save(){
-  localStorage.setItem('joe-chats',JSON.stringify(chats));
-}
-
-// ================= SEND =================
-async function sendMessage(){
-  const input = document.getElementById('input');
+function send() {
+  const input = document.getElementById("input");
   const text = input.value.trim();
-  if(!text)return;
+  if (!text) return;
 
-  const chat = chats.find(c=>c.id===currentChatId);
+  messages.push("You: " + text);
+  input.value = "";
 
-  chat.messages.push({content:text});
-  input.value="";
   render();
-  save();
 
-  setTyping(true);
+  setTimeout(() => {
+    messages.push("Joe: " + getReply());
+    render();
+  }, 800);
+}
 
-  await new Promise(r=>setTimeout(r,1000));
-
-  const replies=[
-    "Interesting… 👀",
-    "I see your thinking.",
-    "Processing that ⚡",
-    "That’s actually smart.",
-    "Tell me more."
+function getReply() {
+  const replies = [
+    "I'm thinking...",
+    "Tell me more.",
+    "Interesting.",
+    "Got it.",
+    "Explain that again."
   ];
-
-  chat.messages.push({
-    content:replies[Math.floor(Math.random()*replies.length)]
-  });
-
-  setTyping(false);
-  render();
-  save();
+  return replies[Math.floor(Math.random() * replies.length)];
 }
 
-// ================= TYPING =================
-function setTyping(t){
-  isTyping = t;
-
-  document.getElementById('joe-mouth').setAttribute(
-    'd',
-    t ? "M 34 67 Q 50 60 66 67"
-      : "M 34 67 Q 50 80 66 67"
-  );
-}
-
-// ================= INPUT =================
-document.getElementById('input').addEventListener('keydown',e=>{
-  if(e.key==="Enter"&&!e.shiftKey){
+document.getElementById("input").addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
-    sendMessage();
+    send();
   }
 });
 
-// ================= BUBBLE =================
-function toggleBubble(){
-  const b = document.getElementById('joe-bubble');
-  b.classList.toggle('show');
-  setTimeout(()=>b.classList.remove('show'),2000);
-}
-
-// INIT
 render();
-
 </script>
+
 </body>
 </html>
 ```
