@@ -5,6 +5,10 @@ export default async function handler(req, res) {
 
     const { messages } = req.body;
 
+    if (!process.env.GROQ_API_KEY) {
+        return res.status(500).json({ error: 'GROQ_API_KEY is not set' });
+    }
+
     try {
         const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
@@ -23,15 +27,13 @@ export default async function handler(req, res) {
         const data = await response.json();
 
         if (!data.choices || !data.choices[0]) {
-            console.error('Groq error:', JSON.stringify(data));
-            return res.status(500).json({ error: 'Joe had a hiccup.', detail: data });
+            return res.status(500).json({ error: 'Groq error', detail: data });
         }
 
         const reply = data.choices[0].message.content;
         res.status(200).json({ reply });
 
     } catch (error) {
-        console.error('Handler error:', error);
-        res.status(500).json({ error: 'Joe had a hiccup.', detail: error.message });
+        res.status(500).json({ error: error.message });
     }
 }
