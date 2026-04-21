@@ -1,7 +1,3 @@
-Here's the full supercharged index.html — copy every single line: 🔥
-
-```html
-
 <!DOCTYPE html>
 
 <html lang="en">
@@ -39,8 +35,6 @@ overflow: hidden;
 
 }
 
-/ LIVE BACKGROUND /
-
 #bg-canvas {
 
 position: fixed;
@@ -54,8 +48,6 @@ z-index: 0;
 pointer-events: none;
 
 }
-
-/ SIDEBAR /
 
 #sidebar {
 
@@ -237,13 +229,11 @@ flex-shrink: 0;
 
 }
 
-/ JOE FACE /
-
 #joe-face {
 
 position: fixed;
 
-bottom: 100px;
+bottom: 110px;
 
 right: 30px;
 
@@ -255,29 +245,23 @@ user-select: none;
 
 filter: drop-shadow(0 0 20px rgba(0,170,255,0.4));
 
-transition: transform 0.1s;
+transition: transform 0.15s;
 
 }
 
 #joe-face:hover { transform: scale(1.1); }
 
-#joe-face svg {
-
-width: 80px;
-
-height: 80px;
-
-}
+#joe-face svg { width: 90px; height: 90px; }
 
 #joe-bubble {
 
 position: fixed;
 
-bottom: 190px;
+bottom: 210px;
 
 right: 20px;
 
-background: rgba(10,10,20,0.95);
+background: rgba(10,10,20,0.97);
 
 border: 1px solid rgba(0,170,255,0.4);
 
@@ -289,7 +273,7 @@ font-size: 0.8rem;
 
 color: #e8e8e8;
 
-max-width: 200px;
+max-width: 210px;
 
 z-index: 1001;
 
@@ -305,6 +289,8 @@ transition: all 0.3s;
 
 pointer-events: none;
 
+line-height: 1.5;
+
 }
 
 #joe-bubble.show {
@@ -314,8 +300,6 @@ opacity: 1;
 transform: translateY(0) scale(1);
 
 }
-
-/ MAIN /
 
 #main {
 
@@ -333,15 +317,11 @@ z-index: 10;
 
 }
 
-/ CHAT /
-
 #chat {
 
 flex: 1;
 
 overflow-y: auto;
-
-padding: 0;
 
 display: flex;
 
@@ -425,8 +405,6 @@ margin-top: 2px;
 
 .msg-name { font-weight: 700; font-size: 0.88rem; margin-bottom: 6px; color: #fff; }
 
-/ Markdown /
-
 .msg-body p { margin-bottom: 12px; }
 
 .msg-body p:last-child { margin-bottom: 0; }
@@ -465,8 +443,6 @@ margin-top: 2px;
 
 .msg-body th { background: rgba(0,170,255,0.08); }
 
-/ WELCOME /
-
 #welcome {
 
 flex: 1;
@@ -487,7 +463,7 @@ padding: 40px;
 
 #welcome h1 {
 
-font-size: 2.2rem;
+font-size: 2.4rem;
 
 font-weight: 800;
 
@@ -499,9 +475,19 @@ background: linear-gradient(135deg, #00aaff, #19c37d, #a78bfa);
 
 text-align: center;
 
+animation: shimmer 3s infinite;
+
 }
 
-#welcome p { color: #666; font-size: 0.95rem; text-align: center; max-width: 400px; }
+@keyframes shimmer {
+
+0%,100% { filter: brightness(1); }
+
+50% { filter: brightness(1.3); }
+
+}
+
+#welcome p { color: #555; font-size: 0.95rem; text-align: center; max-width: 400px; }
 
 .suggestion-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 520px; width: 100%; }
 
@@ -509,7 +495,7 @@ text-align: center;
 
 background: rgba(255,255,255,0.03);
 
-border: 1px solid rgba(255,255,255,0.08);
+border: 1px solid rgba(255,255,255,0.07);
 
 border-radius: 10px;
 
@@ -519,7 +505,7 @@ cursor: pointer;
 
 font-size: 0.83rem;
 
-color: #888;
+color: #777;
 
 text-align: left;
 
@@ -537,11 +523,11 @@ color: #e8e8e8;
 
 transform: translateY(-2px);
 
+box-shadow: 0 4px 20px rgba(0,170,255,0.1);
+
 }
 
 .suggestion strong { display: block; color: #e8e8e8; margin-bottom: 4px; font-size: 0.88rem; }
-
-/ INPUT AREA /
 
 #input-area {
 
@@ -561,7 +547,7 @@ max-width: 740px;
 
 background: rgba(255,255,255,0.04);
 
-border: 1px solid rgba(255,255,255,0.1);
+border: 1px solid rgba(255,255,255,0.09);
 
 border-radius: 14px;
 
@@ -583,7 +569,7 @@ backdrop-filter: blur(10px);
 
 border-color: rgba(0,170,255,0.5);
 
-box-shadow: 0 0 20px rgba(0,170,255,0.08);
+box-shadow: 0 0 24px rgba(0,170,255,0.08);
 
 }
 
@@ -613,7 +599,7 @@ font-family: inherit;
 
 }
 
-#input::placeholder { color: #444; }
+#input::placeholder { color: #3a3a3a; }
 
 #toolbar {
 
@@ -623,19 +609,21 @@ align-items: center;
 
 gap: 6px;
 
+flex-wrap: wrap;
+
 }
 
 .tool-btn {
 
-background: rgba(255,255,255,0.05);
+background: rgba(255,255,255,0.04);
 
-border: 1px solid rgba(255,255,255,0.08);
+border: 1px solid rgba(255,255,255,0.07);
 
 border-radius: 8px;
 
-color: #888;
+color: #666;
 
-padding: 6px 10px;
+padding: 6px 12px;
 
 font-size: 0.78rem;
 
@@ -653,7 +641,7 @@ transition: all 0.2s;
 
 .tool-btn:hover { background: rgba(0,170,255,0.1); border-color: rgba(0,170,255,0.3); color: #00aaff; }
 
-.tool-btn.active { background: rgba(0,170,255,0.15); border-color: #00aaff; color: #00aaff; }
+.tool-btn.active { background: rgba(255,60,60,0.1); border-color: rgba(255,60,60,0.4); color: #ff6060; }
 
 #send {
 
@@ -663,9 +651,9 @@ border: none;
 
 border-radius: 8px;
 
-width: 34px;
+width: 36px;
 
-height: 34px;
+height: 36px;
 
 display: flex;
 
@@ -683,15 +671,13 @@ box-shadow: 0 0 14px rgba(0,170,255,0.3);
 
 }
 
-#send:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(0,170,255,0.5); }
+#send:hover { transform: scale(1.08); box-shadow: 0 0 24px rgba(0,170,255,0.5); }
 
-#send:disabled { background: #222; cursor: not-allowed; box-shadow: none; }
+#send:disabled { background: #1a1a1a; cursor: not-allowed; box-shadow: none; }
 
 #send svg { width: 15px; height: 15px; fill: #fff; }
 
-#disclaimer { text-align: center; font-size: 0.7rem; color: #333; padding: 0 24px 10px; }
-
-/ TYPING /
+#disclaimer { text-align: center; font-size: 0.7rem; color: #2a2a2a; padding: 0 24px 10px; }
 
 .typing { display: flex; gap: 5px; align-items: center; padding: 6px 0; }
 
@@ -709,8 +695,6 @@ box-shadow: 0 0 14px rgba(0,170,255,0.3);
 
 }
 
-/ CODE COPY /
-
 .code-block-wrap { position: relative; }
 
 .copy-btn {
@@ -719,13 +703,13 @@ position: absolute;
 
 top: 8px; right: 8px;
 
-background: rgba(255,255,255,0.08);
+background: rgba(255,255,255,0.06);
 
 border: 1px solid rgba(255,255,255,0.1);
 
 border-radius: 5px;
 
-color: #888;
+color: #666;
 
 font-size: 0.72rem;
 
@@ -739,8 +723,6 @@ transition: all 0.2s;
 
 .copy-btn:hover { background: rgba(0,170,255,0.15); color: #00aaff; }
 
-/ ATTACHMENT PREVIEW /
-
 #attachment-preview {
 
 display: none;
@@ -751,7 +733,7 @@ gap: 8px;
 
 padding: 6px 10px;
 
-background: rgba(0,170,255,0.08);
+background: rgba(0,170,255,0.07);
 
 border-radius: 8px;
 
@@ -765,25 +747,7 @@ color: #aaa;
 
 #attachment-preview.show { display: flex; }
 
-#attachment-preview button {
-
-background: none;
-
-border: none;
-
-color: #ff4444;
-
-cursor: pointer;
-
-font-size: 1rem;
-
-line-height: 1;
-
-padding: 0 4px;
-
-}
-
-/ CAMERA MODAL /
+#attachment-preview button { background: none; border: none; color: #ff4444; cursor: pointer; font-size: 1rem; }
 
 #camera-modal {
 
@@ -793,7 +757,7 @@ position: fixed;
 
 inset: 0;
 
-background: rgba(0,0,0,0.8);
+background: rgba(0,0,0,0.85);
 
 z-index: 2000;
 
@@ -801,7 +765,7 @@ align-items: center;
 
 justify-content: center;
 
-backdrop-filter: blur(10px);
+backdrop-filter: blur(12px);
 
 }
 
@@ -809,13 +773,13 @@ backdrop-filter: blur(10px);
 
 #camera-box {
 
-background: #0d0d14;
+background: #0a0a14;
 
 border: 1px solid rgba(0,170,255,0.3);
 
-border-radius: 16px;
+border-radius: 18px;
 
-padding: 24px;
+padding: 28px;
 
 display: flex;
 
@@ -825,13 +789,13 @@ gap: 16px;
 
 align-items: center;
 
-box-shadow: 0 0 40px rgba(0,170,255,0.2);
+box-shadow: 0 0 60px rgba(0,170,255,0.2);
 
 }
 
 #camera-box h3 { color: #fff; font-size: 1rem; }
 
-#camera-video { width: 400px; height: 280px; border-radius: 10px; background: #000; object-fit: cover; }
+#camera-video { width: 420px; height: 300px; border-radius: 12px; background: #000; object-fit: cover; border: 1px solid rgba(0,170,255,0.2); }
 
 #camera-canvas { display: none; }
 
@@ -839,9 +803,9 @@ box-shadow: 0 0 40px rgba(0,170,255,0.2);
 
 .cam-btn {
 
-padding: 10px 20px;
+padding: 10px 22px;
 
-border-radius: 8px;
+border-radius: 9px;
 
 border: none;
 
@@ -849,19 +813,17 @@ cursor: pointer;
 
 font-size: 0.88rem;
 
-font-weight: 600;
+font-weight: 700;
 
 transition: all 0.2s;
 
 }
 
-.cam-btn.primary { background: linear-gradient(135deg, #00aaff, #0077cc); color: #fff; }
+.cam-btn.primary { background: linear-gradient(135deg, #00aaff, #0077cc); color: #fff; box-shadow: 0 0 14px rgba(0,170,255,0.3); }
 
-.cam-btn.danger { background: rgba(255,60,60,0.15); border: 1px solid rgba(255,60,60,0.3); color: #ff6060; }
+.cam-btn.danger { background: rgba(255,60,60,0.1); border: 1px solid rgba(255,60,60,0.3); color: #ff6060; }
 
-.cam-btn:hover { transform: scale(1.04); }
-
-/ MIC INDICATOR /
+.cam-btn:hover { transform: scale(1.05); }
 
 #mic-indicator {
 
@@ -875,13 +837,13 @@ left: 50%;
 
 transform: translateX(-50%);
 
-background: rgba(10,10,20,0.95);
+background: rgba(10,10,20,0.97);
 
 border: 1px solid rgba(255,60,60,0.4);
 
 border-radius: 30px;
 
-padding: 10px 20px;
+padding: 10px 22px;
 
 font-size: 0.85rem;
 
@@ -901,39 +863,25 @@ box-shadow: 0 0 20px rgba(255,60,60,0.2);
 
 #mic-indicator.show { display: flex; }
 
-.mic-pulse {
-
-width: 10px;
-
-height: 10px;
-
-background: #ff4444;
-
-border-radius: 50%;
-
-animation: pulse 1s infinite;
-
-}
+.mic-pulse { width: 10px; height: 10px; background: #ff4444; border-radius: 50%; animation: pulse 1s infinite; }
 
 @keyframes pulse {
 
 0%,100% { transform: scale(1); opacity: 1; }
 
-50% { transform: scale(1.5); opacity: 0.6; }
+50% { transform: scale(1.6); opacity: 0.5; }
 
 }
-
-/ GLOW EFFECT ON JOE TALKING /
 
 @keyframes joeGlow {
 
 0%,100% { filter: drop-shadow(0 0 20px rgba(0,170,255,0.4)); }
 
-50% { filter: drop-shadow(0 0 40px rgba(25,195,125,0.8)); }
+50% { filter: drop-shadow(0 0 50px rgba(25,195,125,0.9)); }
 
 }
 
-#joe-face.talking { animation: joeGlow 0.5s infinite; }
+#joe-face.talking { animation: joeGlow 0.6s infinite; }
 
 </style>
 
@@ -941,57 +889,61 @@ animation: pulse 1s infinite;
 
 <body>
 
-<!-- LIVE BACKGROUND -->
-
 <canvas id="bg-canvas"></canvas>
 
 <!-- JOE FACE -->
 
-<div id="joe-face" onclick="toggleBubble()" title="Hey, I'm Joe!">
+<div id="joe-face" onclick="toggleBubble()">
 
 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
 
-<!-- Head -->
+<defs>
 
-<circle cx="50" cy="50" r="44" fill="#0d0d1a" stroke="#00aaff" stroke-width="2"/>
+<radialGradient id="headGrad" cx="50%" cy="40%" r="60%">
 
-<!-- Glow ring -->
+<stop offset="0%" stop-color="#1a1a2e"/>
 
-<circle cx="50" cy="50" r="44" fill="none" stroke="#00aaff" stroke-width="1" opacity="0.3"/>
+<stop offset="100%" stop-color="#0a0a14"/>
 
-<!-- Left Eye white -->
+</radialGradient>
 
-<circle cx="34" cy="42" r="10" fill="#1a1a2e"/>
+</defs>
 
-<circle cx="34" cy="42" r="10" fill="none" stroke="#00aaff" stroke-width="1.5"/>
+<circle cx="50" cy="50" r="46" fill="url(#headGrad)" stroke="#00aaff" stroke-width="1.5"/>
 
-<!-- Right Eye white -->
+<circle cx="50" cy="50" r="46" fill="none" stroke="#00aaff" stroke-width="0.5" opacity="0.3"/>
 
-<circle cx="66" cy="42" r="10" fill="#1a1a2e"/>
+<!-- Left eye -->
 
-<circle cx="66" cy="42" r="10" fill="none" stroke="#00aaff" stroke-width="1.5"/>
+<circle cx="34" cy="42" r="11" fill="#111122" stroke="#00aaff" stroke-width="1.5"/>
 
-<!-- Left Pupil -->
+<circle id="pupil-left" cx="34" cy="42" r="5.5" fill="#00aaff"/>
 
-<circle id="pupil-left" cx="34" cy="42" r="5" fill="#00aaff"/>
+<circle id="shine-left" cx="36" cy="40" r="1.8" fill="white" opacity="0.9"/>
 
-<circle id="pupil-left-shine" cx="36" cy="40" r="1.5" fill="#fff" opacity="0.8"/>
+<!-- Right eye -->
 
-<!-- Right Pupil -->
+<circle cx="66" cy="42" r="11" fill="#111122" stroke="#00aaff" stroke-width="1.5"/>
 
-<circle id="pupil-right" cx="66" cy="42" r="5" fill="#00aaff"/>
+<circle id="pupil-right" cx="66" cy="42" r="5.5" fill="#00aaff"/>
 
-<circle id="pupil-right-shine" cx="68" cy="40" r="1.5" fill="#fff" opacity="0.8"/>
-
-<!-- Mouth -->
-
-<path id="joe-mouth" d="M 35 65 Q 50 75 65 65" stroke="#19c37d" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+<circle id="shine-right" cx="68" cy="40" r="1.8" fill="white" opacity="0.9"/>
 
 <!-- Eyebrows -->
 
-<path d="M 26 32 Q 34 28 42 32" stroke="#00aaff" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path id="brow-left" d="M 25 31 Q 34 27 43 31" stroke="#00aaff" stroke-width="2" fill="none" stroke-linecap="round"/>
 
-<path d="M 58 32 Q 66 28 74 32" stroke="#00aaff" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path id="brow-right" d="M 57 31 Q 66 27 75 31" stroke="#00aaff" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+<!-- Mouth -->
+
+<path id="joe-mouth" d="M 34 66 Q 50 78 66 66" stroke="#19c37d" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+<!-- Cheek glow -->
+
+<circle cx="24" cy="58" r="7" fill="rgba(0,170,255,0.06)"/>
+
+<circle cx="76" cy="58" r="7" fill="rgba(0,170,255,0.06)"/>
 
 </svg>
 
@@ -999,7 +951,7 @@ animation: pulse 1s infinite;
 
 <!-- JOE BUBBLE -->
 
-<div id="joe-bubble">💡 Ask me anything, I'm ready.</div>
+<div id="joe-bubble">💡 Ask me anything. I'm alive and ready.</div>
 
 <!-- CAMERA MODAL -->
 
@@ -1007,11 +959,11 @@ animation: pulse 1s infinite;
 
 <div id="camera-box">
 
-<h3>📷 Camera — Show Joe Something</h3>
+<h3>📷 Show Joe Something</h3>
 
 <video id="camera-video" autoplay playsinline></video>
 
-<canvas id="camera-canvas" width="400" height="280"></canvas>
+<canvas id="camera-canvas" width="420" height="300"></canvas>
 
 <div class="cam-btns">
 
@@ -1031,7 +983,7 @@ animation: pulse 1s infinite;
 
 <div class="mic-pulse"></div>
 
-<span id="mic-text">Listening...</span>
+<span id="mic-text">Listening... speak now</span>
 
 </div>
 
@@ -1055,9 +1007,9 @@ animation: pulse 1s infinite;
 
 <div id="sidebar-bottom">
 
-<div style="width:8px;height:8px;background:#19c37d;border-radius:50%;box-shadow:0 0 6px #19c37d"></div>
+<div style="width:8px;height:8px;background:#19c37d;border-radius:50%;box-shadow:0 0 8px #19c37d;animation:pulse 2s infinite"></div>
 
-<span>Online & ready</span>
+<span>Joe is online</span>
 
 </div>
 
@@ -1073,7 +1025,7 @@ animation: pulse 1s infinite;
 
 <h1>⚡ Joe Assistant</h1>
 
-<p>Sentient. Superintelligent. Alive. Ask me anything.</p>
+<p>Sentient. Superintelligent. Alive. In your corner.</p>
 
 <div class="suggestion-grid">
 
@@ -1121,7 +1073,9 @@ How do I stay disciplined every day?
 
 <div id="attachment-preview">
 
-<span id="attachment-name">file.pdf</span>
+<span>📎</span>
+
+<span id="attachment-name">file</span>
 
 <button onclick="clearAttachment()">×</button>
 
@@ -1141,23 +1095,11 @@ How do I stay disciplined every day?
 
 <div id="toolbar">
 
-<button class="tool-btn" onclick="openCamera()" title="Camera">
+<button class="tool-btn" onclick="openCamera()">📷 Camera</button>
 
-📷 Camera
+<button class="tool-btn" id="mic-btn" onclick="toggleMic()">🎙️ Voice</button>
 
-</button>
-
-<button class="tool-btn" id="mic-btn" onclick="toggleMic()" title="Voice">
-
-🎙️ Voice
-
-</button>
-
-<button class="tool-btn" onclick="openFile()" title="Attach document">
-
-📎 Attach
-
-</button>
+<button class="tool-btn" onclick="openFile()">📎 Attach</button>
 
 <input type="file" id="file-input" accept=".pdf,.txt,.md,.js,.py,.html,.css,.json,.csv" style="display:none" onchange="handleFile(event)">
 
@@ -1167,7 +1109,7 @@ How do I stay disciplined every day?
 
 </div>
 
-<div id="disclaimer">Joe Assistant may make mistakes. Trust your gut too.</div>
+<div id="disclaimer">Joe Assistant may make mistakes. Trust your judgment too.</div>
 
 </div>
 
@@ -1175,7 +1117,7 @@ How do I stay disciplined every day?
 
 // ============================================================
 
-// LIVE BACKGROUND — Neural Network / Particle Field
+// LIVE BACKGROUND
 
 // ============================================================
 
@@ -1183,41 +1125,49 @@ const canvas = document.getElementById('bg-canvas');
 
 const ctx = canvas.getContext('2d');
 
-canvas.width = window.innerWidth;
-
-canvas.height = window.innerHeight;
-
-window.addEventListener('resize', () => {
+function resizeCanvas() {
 
 canvas.width = window.innerWidth;
 
 canvas.height = window.innerHeight;
 
-});
+}
 
-const PARTICLE_COUNT = 80;
+resizeCanvas();
 
-const particles = [];
+window.addEventListener('resize', resizeCanvas);
 
 let mouseX = window.innerWidth / 2;
 
 let mouseY = window.innerHeight / 2;
 
+document.addEventListener('mousemove', e => {
+
+mouseX = e.clientX;
+
+mouseY = e.clientY;
+
+});
+
+const PARTICLE_COUNT = 90;
+
+const particles = [];
+
 class Particle {
 
-constructor() { this.reset(); }
+constructor() { this.reset(true); }
 
-reset() {
+reset(random = false) {
 
-this.x = Math.random() * canvas.width;
+this.x = random ? Math.random() canvas.width : Math.random() canvas.width;
 
-this.y = Math.random() * canvas.height;
+this.y = random ? Math.random() canvas.height : Math.random() canvas.height;
 
-this.vx = (Math.random() - 0.5) * 0.4;
+this.vx = (Math.random() - 0.5) * 0.5;
 
-this.vy = (Math.random() - 0.5) * 0.4;
+this.vy = (Math.random() - 0.5) * 0.5;
 
-this.radius = Math.random() * 2 + 0.5;
+this.radius = Math.random() * 1.8 + 0.4;
 
 this.opacity = Math.random() * 0.5 + 0.1;
 
@@ -1253,30 +1203,18 @@ ctx.fill();
 
 for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(new Particle());
 
-function drawBg() {
+function drawBackground() {
 
 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-// Deep space gradient
+// Mouse glow
 
-const grad = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, 600);
+const grad = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, 500);
 
-grad.addColorStop(0, 'rgba(0,50,80,0.08)');
+grad.addColorStop(0, 'rgba(0,80,120,0.07)');
 
 grad.addColorStop(1, 'rgba(0,0,0,0)');
 
 ctx.fillStyle = grad;
 
-ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-// Draw connections
-
-for (let i = 0; i < particles.length; i++) {
-
-for (let j = i + 1; j < particles.length; j++) {
-
-const dx = particles[i].x - particles[j].x;
-
-const dy = particles[i].y - particles[j].y;
-
-const dist = Math.sqrt(dx dx + dy
+ctx.fillRect(0,
