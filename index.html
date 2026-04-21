@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Joe · Nexus Intelligence</title>
+  <title>Joe · Intelligent Assistant</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
@@ -12,24 +12,23 @@
       font-family: 'Inter', sans-serif;
       height: 100vh;
       overflow: hidden;
-      background: radial-gradient(circle at 30% 10%, #0b0b18, #020208);
+      background: radial-gradient(circle at 20% 20%, #0c0c1e, #020205);
       position: relative;
       cursor: none;
       color: #eef2ff;
     }
 
-    /* Custom Cursor */
     .cursor {
       position: fixed;
-      width: 28px;
-      height: 28px;
-      background: radial-gradient(circle, #a3dcff 0%, #3b7b9c 80%);
+      width: 24px;
+      height: 24px;
+      background: radial-gradient(circle, #a0d0ff 0%, #3a7ca5 80%);
       border-radius: 50%;
       pointer-events: none;
       z-index: 9999;
       mix-blend-mode: exclusion;
-      transition: transform 0.1s ease, width 0.2s, height 0.2s;
-      box-shadow: 0 0 30px #00a6ff;
+      transition: transform 0.1s ease;
+      box-shadow: 0 0 30px #3b82f6;
     }
 
     .app {
@@ -42,40 +41,38 @@
       backdrop-filter: blur(2px);
     }
 
-    /* Sidebar */
     .sidebar {
-      width: 90px;
-      background: rgba(12, 15, 28, 0.9);
-      backdrop-filter: blur(25px);
-      border-right: 1px solid rgba(120, 180, 255, 0.2);
+      width: 80px;
+      background: rgba(10, 12, 24, 0.9);
+      backdrop-filter: blur(30px);
+      border-right: 1px solid rgba(100, 150, 255, 0.15);
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 30px 0;
-      transition: width 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+      transition: width 0.3s ease;
     }
-    .sidebar.expanded { width: 280px; }
+    .sidebar.expanded { width: 260px; }
     .new-chat-btn {
-      width: 58px;
-      height: 58px;
-      border-radius: 30px;
-      background: linear-gradient(145deg, #6b5bff, #a855f7);
+      width: 54px;
+      height: 54px;
+      border-radius: 28px;
+      background: linear-gradient(145deg, #6366f1, #a855f7);
       border: none;
       color: white;
-      font-size: 26px;
+      font-size: 24px;
       cursor: pointer;
-      box-shadow: 0 8px 24px rgba(107, 91, 255, 0.4);
-      transition: all 0.25s;
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+      transition: all 0.2s;
       display: flex;
       align-items: center;
       justify-content: center;
     }
     .new-chat-btn:hover {
-      transform: scale(1.08) rotate(3deg);
+      transform: scale(1.08);
       box-shadow: 0 0 35px #a855f7;
     }
 
-    /* Chat Main */
     .chat-main {
       flex: 1;
       display: flex;
@@ -88,50 +85,41 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 25px;
+      margin-bottom: 20px;
     }
     .logo {
-      font-size: 2.8rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #c084fc, #60a5fa, #34d399);
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #a78bfa, #60a5fa, #34d399);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
       letter-spacing: -0.02em;
-      text-shadow: 0 0 25px #7c3aed;
     }
-    .toolbar {
-      display: flex;
-      gap: 12px;
-    }
+    .toolbar { display: flex; gap: 10px; }
     .tool-btn {
-      background: rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.06);
       backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.12);
       border-radius: 40px;
-      padding: 12px 22px;
-      color: #e0f2fe;
+      padding: 10px 18px;
+      color: #dbeafe;
       font-weight: 500;
-      font-size: 1rem;
+      font-size: 0.95rem;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       cursor: pointer;
       transition: all 0.2s;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
     .tool-btn.active {
       background: #7c3aed;
-      border-color: #c084fc;
-      box-shadow: 0 0 20px #a78bfa;
+      border-color: #a78bfa;
+      box-shadow: 0 0 18px #8b5cf6;
     }
-    .tool-btn:hover {
-      background: rgba(124, 58, 237, 0.4);
-      transform: translateY(-2px);
-    }
+    .tool-btn:hover { background: rgba(124, 58, 237, 0.3); transform: translateY(-1px); }
     .attach-input { display: none; }
 
-    /* Messages */
     .messages {
       flex: 1;
       overflow-y: auto;
@@ -141,87 +129,85 @@
     .message {
       margin-bottom: 24px;
       display: flex;
-      animation: messageSlide 0.4s ease-out;
+      animation: slideIn 0.35s ease-out;
     }
     .user-message { justify-content: flex-end; }
     .bot-message { justify-content: flex-start; }
     .message-content {
-      max-width: 78%;
-      padding: 20px 26px;
-      border-radius: 32px;
-      font-size: 1.05rem;
+      max-width: 80%;
+      padding: 18px 24px;
+      border-radius: 28px;
+      font-size: 1rem;
       line-height: 1.6;
       word-break: break-word;
-      position: relative;
-      box-shadow: 0 12px 28px -8px rgba(0,0,0,0.4);
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.4);
     }
     .user-message .message-content {
-      background: linear-gradient(145deg, #4f46e5, #9333ea);
+      background: linear-gradient(145deg, #4f46e5, #7c3aed);
       color: white;
-      border-bottom-right-radius: 12px;
+      border-bottom-right-radius: 10px;
     }
     .bot-message .message-content {
-      background: rgba(20, 30, 50, 0.85);
+      background: rgba(20, 28, 45, 0.9);
       backdrop-filter: blur(20px);
-      border: 1px solid rgba(200, 220, 255, 0.2);
-      border-bottom-left-radius: 12px;
+      border: 1px solid rgba(180, 200, 255, 0.2);
+      border-bottom-left-radius: 10px;
       color: #f0f4ff;
     }
 
     .think-block {
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(0, 0, 0, 0.35);
       border-left: 4px solid #fbbf24;
-      padding: 14px 18px;
-      margin-bottom: 16px;
-      border-radius: 18px;
-      font-style: italic;
+      padding: 12px 16px;
+      margin-bottom: 14px;
+      border-radius: 16px;
       color: #fde68a;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
+      font-style: italic;
     }
 
     .search-card {
-      background: rgba(10, 20, 40, 0.8);
-      border-radius: 24px;
-      padding: 16px;
-      margin: 16px 0;
+      background: rgba(15, 25, 45, 0.8);
+      border-radius: 20px;
+      padding: 14px;
+      margin: 14px 0;
       border: 1px solid #38bdf8;
     }
-    .search-title { font-weight: 700; color: #bae6fd; margin-bottom: 6px; }
+    .search-title { font-weight: 600; color: #bae6fd; margin-bottom: 6px; }
 
     .gen-image {
       max-width: 100%;
-      border-radius: 24px;
-      margin-top: 16px;
-      border: 2px solid #818cf8;
+      border-radius: 20px;
+      margin-top: 14px;
+      border: 2px solid #6366f1;
     }
 
     .file-attach-badge {
       display: inline-block;
       background: #1e293b;
-      padding: 4px 14px;
+      padding: 4px 12px;
       border-radius: 30px;
-      font-size: 0.9rem;
-      margin-top: 8px;
-      color: #94a3b8;
+      font-size: 0.85rem;
+      margin-top: 10px;
+      color: #a5b4fc;
     }
 
-    /* Typing indicator */
     .typing-row {
       display: flex;
       align-items: center;
-      gap: 16px;
-      padding: 8px 0;
+      gap: 14px;
+      padding: 6px 0;
     }
     .typing-avatar-mini {
-      width: 44px;
-      height: 44px;
+      width: 40px;
+      height: 40px;
       background: linear-gradient(45deg, #f97316, #ec4899);
       border-radius: 30px;
     }
-    .typing-dots { display: flex; gap: 6px; }
+    .typing-dots { display: flex; gap: 5px; }
     .typing-dot {
-      width: 10px; height: 10px; background: #b0c4ff; border-radius: 50%;
-      animation: dotPulse 1.5s infinite;
+      width: 8px; height: 8px; background: #b0c4ff; border-radius: 50%;
+      animation: dotPulse 1.4s infinite;
     }
     .typing-dot:nth-child(2) { animation-delay: 0.2s; }
     .typing-dot:nth-child(3) { animation-delay: 0.4s; }
@@ -230,67 +216,65 @@
       30% { transform: scale(1.3); opacity: 1; }
     }
 
-    /* Input */
     .input-area {
       display: flex;
-      gap: 18px;
-      margin-top: 20px;
+      gap: 16px;
+      margin-top: 18px;
       align-items: center;
     }
     .input-field {
       flex: 1;
-      padding: 20px 28px;
-      border: 2px solid rgba(160, 200, 255, 0.25);
-      border-radius: 60px;
-      background: rgba(10, 15, 30, 0.8);
-      backdrop-filter: blur(25px);
+      padding: 18px 24px;
+      border: 2px solid rgba(140, 180, 255, 0.2);
+      border-radius: 50px;
+      background: rgba(8, 12, 24, 0.8);
+      backdrop-filter: blur(20px);
       color: white;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       outline: none;
       transition: 0.2s;
     }
-    .input-field:focus { border-color: #818cf8; box-shadow: 0 0 30px #4f46e5; }
+    .input-field:focus { border-color: #818cf8; box-shadow: 0 0 25px #4f46e5; }
     .send-btn {
-      width: 72px; height: 72px; border-radius: 40px;
+      width: 64px; height: 64px; border-radius: 40px;
       background: linear-gradient(145deg, #06b6d4, #3b82f6);
-      border: none; color: white; font-size: 28px;
-      cursor: pointer; box-shadow: 0 8px 28px #2563eb;
+      border: none; color: white; font-size: 26px;
+      cursor: pointer; box-shadow: 0 8px 24px #2563eb;
       transition: 0.2s;
     }
-    .send-btn:hover { transform: scale(1.08); background: #38bdf8; }
+    .send-btn:hover { transform: scale(1.06); background: #38bdf8; }
 
-    /* Joe Avatar */
     .joe-container {
       position: fixed; top: 50%; right: 2%; transform: translateY(-50%);
-      width: 340px; height: 440px; z-index: 100;
+      width: 300px; height: 380px; z-index: 100;
     }
     .joe-face {
       width: 100%; height: 100%;
       background: linear-gradient(145deg, #7c8ce0, #b48cde, #6ee7b7);
       background-size: 300% 300%;
       animation: gradientFlow 6s ease infinite;
-      border-radius: 180px 180px 150px 150px;
-      box-shadow: 0 30px 60px #00000055, inset 0 10px 30px #ffffff30;
+      border-radius: 160px 160px 130px 130px;
+      box-shadow: 0 30px 50px #00000060, inset 0 10px 25px #ffffff30;
     }
     @keyframes gradientFlow { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
     .joe-eyes { position: absolute; top: 28%; left: 18%; right: 18%; display: flex; justify-content: space-between; }
-    .eye { width: 70px; height: 70px; background: #fff; border-radius: 50%; position: relative; }
-    .pupil { width: 28px; height: 28px; background: #1e1b4b; border-radius: 50%; position: absolute; top: 50%; left: 50%; }
+    .eye { width: 60px; height: 60px; background: #fff; border-radius: 50%; position: relative; }
+    .pupil { width: 24px; height: 24px; background: #1e1b4b; border-radius: 50%; position: absolute; top: 50%; left: 50%; }
     .mouth {
-      position: absolute; bottom: 26%; left: 50%; transform: translateX(-50%);
-      width: 90px; height: 40px; border: 6px solid #fff; border-top: none;
-      border-radius: 0 0 60px 60px; transition: all 0.15s;
+      position: absolute; bottom: 28%; left: 50%; transform: translateX(-50%);
+      width: 80px; height: 35px; border: 5px solid #fff; border-top: none;
+      border-radius: 0 0 50px 50px; transition: all 0.15s;
     }
-    .joe-talking .mouth { animation: mouthTalk 0.45s infinite; }
+    .joe-talking .mouth { animation: mouthTalk 0.4s infinite; }
     @keyframes mouthTalk {
-      0%,100% { height: 40px; border-radius: 0 0 60px 60px; }
-      50% { height: 14px; border-radius: 0 0 25px 25px; }
+      0%,100% { height: 35px; border-radius: 0 0 50px 50px; }
+      50% { height: 12px; border-radius: 0 0 20px 20px; }
     }
 
-    .messages::-webkit-scrollbar { width: 6px; }
+    .messages::-webkit-scrollbar { width: 5px; }
     .messages::-webkit-scrollbar-thumb { background: #6366f1; border-radius: 10px; }
 
-    @keyframes messageSlide { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body>
@@ -299,16 +283,16 @@
 
 <div class="app">
   <div class="sidebar" id="sidebar">
-    <button class="new-chat-btn" onclick="newChat()" title="Fresh start">✨</button>
+    <button class="new-chat-btn" onclick="newChat()" title="New conversation">✨</button>
   </div>
 
   <div class="chat-main">
     <div class="header-tools">
       <div class="logo">Joe · Nexus</div>
       <div class="toolbar">
-        <button class="tool-btn" id="deepThinkToggle" onclick="toggleDeepThink()" title="Deep Think mode">🧠 Think</button>
-        <button class="tool-btn" onclick="simulateSearch()" title="Web search">🔍 Search</button>
-        <button class="tool-btn" onclick="generateImage()" title="Generate image">🖼️ Create</button>
+        <button class="tool-btn" id="deepThinkToggle" onclick="toggleDeepThink()">🧠 Think</button>
+        <button class="tool-btn" onclick="simulateSearch()">🔍 Search</button>
+        <button class="tool-btn" onclick="generateImage()">🖼️ Create</button>
         <label class="tool-btn" for="attachInput" style="cursor:pointer;">📎 Attach</label>
         <input type="file" id="attachInput" class="attach-input" accept=".txt,.md,.json,text/plain" onchange="handleFileAttach(this)">
       </div>
@@ -317,18 +301,17 @@
     <div class="messages" id="messages">
       <div class="message bot-message">
         <div class="message-content">
-          👋 I'm Joe — an advanced reasoning assistant. I think before I speak, remember context, and provide nuanced answers. Ask me anything deep or technical.
+          I'm Joe. I think before I speak, remember what we've discussed, and provide thoughtful, nuanced answers. Ask me anything — from philosophy to code to career advice.
         </div>
       </div>
     </div>
 
     <div class="input-area">
-      <input type="text" class="input-field" id="messageInput" placeholder="Ask a complex question..." autocomplete="off">
+      <input type="text" class="input-field" id="messageInput" placeholder="Ask something meaningful..." autocomplete="off">
       <button class="send-btn" onclick="sendMessage()">➤</button>
     </div>
   </div>
 
-  <!-- Joe Avatar -->
   <div class="joe-container">
     <div class="joe-face" id="joeFace">
       <div class="joe-eyes">
@@ -351,9 +334,8 @@
     let attachedFileContent = null;
     let attachedFileName = null;
     
-    // Conversation memory with deeper context
     const memory = [];
-    const MAX_MEMORY = 8;
+    const MAX_MEMORY = 10;
     
     const messagesDiv = document.getElementById('messages');
     const msgInput = document.getElementById('messageInput');
@@ -365,11 +347,11 @@
     function initCursor() {
       const cursor = document.getElementById('cursor');
       document.addEventListener('mousemove', (e) => {
-        cursor.style.left = e.clientX - 14 + 'px';
-        cursor.style.top = e.clientY - 14 + 'px';
+        cursor.style.left = e.clientX - 12 + 'px';
+        cursor.style.top = e.clientY - 12 + 'px';
       });
       document.querySelectorAll('button, .tool-btn, .joe-face, .input-field').forEach(el => {
-        el.addEventListener('mouseenter', ()=> cursor.style.transform = 'scale(1.4)');
+        el.addEventListener('mouseenter', ()=> cursor.style.transform = 'scale(1.3)');
         el.addEventListener('mouseleave', ()=> cursor.style.transform = 'scale(1)');
       });
     }
@@ -380,7 +362,7 @@
         const fx = faceRect.left + faceRect.width/2;
         const fy = faceRect.top + faceRect.height/2;
         const dx = e.clientX - fx, dy = e.clientY - fy;
-        const maxMove = 14;
+        const maxMove = 12;
         const dist = Math.sqrt(dx*dx+dy*dy);
         let moveX=0, moveY=0;
         if(dist > 10) {
@@ -416,7 +398,7 @@
       }
       
       if (typeof content === 'string') {
-        contentDiv.innerHTML = content.replace(/\n/g, '<br>'); // support line breaks
+        contentDiv.innerHTML = content.replace(/\n/g, '<br>');
       } else {
         contentDiv.appendChild(content);
       }
@@ -432,14 +414,14 @@
         const img = document.createElement('img');
         img.src = extra.imageUrl;
         img.className = 'gen-image';
-        img.alt = 'AI generated';
+        img.alt = 'Generated visual';
         contentDiv.appendChild(img);
       }
       
       if (extra.attachmentName) {
         const badge = document.createElement('div');
         badge.className = 'file-attach-badge';
-        badge.textContent = `📎 ${extra.attachmentName}`;
+        badge.textContent = `📎 Referencing: ${extra.attachmentName}`;
         contentDiv.appendChild(badge);
       }
       
@@ -474,141 +456,148 @@
       if(memory.length > MAX_MEMORY) memory.shift();
     }
 
-    // ---------- ADVANCED RESPONSE ENGINE (SMART) ----------
-    function generateIntelligentResponse(userText) {
+    // ---------- ADVANCED RESPONSE ENGINE (LIKE ME) ----------
+    function generateResponse(userText) {
       const lower = userText.toLowerCase();
-      let think = deepThinkEnabled ? `Analyzing query: "${userText}". ` : '';
+      
+      // Build think chain
+      let think = '';
       if (deepThinkEnabled) {
-        think += `Intent: ${classifyIntent(lower)}. Memory size: ${memory.length}. `;
-        if (attachedFileContent) think += `File context present. `;
+        think = `User asked: "${userText}". `;
+        if (attachedFileContent) think += `File attached: ${attachedFileName}. `;
+        think += `Memory has ${memory.length} prior exchanges. `;
       }
 
-      // File context injection
-      let fileContext = '';
+      // FILE CONTEXT
+      let fileNote = '';
       if (attachedFileContent) {
-        fileContext = `\n\n(Referencing attached file "${attachedFileName}": ${attachedFileContent.substring(0,300)}...)`;
+        fileNote = `\n\n*(I've noted the content of "${attachedFileName}" — it informs my response.)*`;
       }
 
-      // 1. Search intent
+      // 1. SEARCH INTENT
       if (lower.includes('search') || lower.includes('find') || lower.includes('look up')) {
-        const query = userText.replace(/search|find|look up/gi, '').trim() || 'latest AI breakthroughs';
+        const query = userText.replace(/search|find|look up/gi, '').trim() || 'recent AI developments';
+        think += 'Intent: web search. ';
         const results = `
-          <strong>1. "Neuro-symbolic AI achieves human-like reasoning"</strong> - Nature (2026)<br>
-          <strong>2. "Open-source model surpasses GPT-5 on MMLU benchmark"</strong> - TechCrunch<br>
-          <strong>3. "Joe Assistant integrates real-time knowledge synthesis"</strong> - Official Blog
+          <strong>1. "Multimodal AI reaches human parity in visual reasoning"</strong> — Nature (2026)<br>
+          <strong>2. "Open-source models now outperform GPT-5 on complex benchmarks"</strong> — TechCrunch<br>
+          <strong>3. "Joe Assistant integrates real-time knowledge retrieval"</strong> — Official
         `;
         return { 
-          response: `🔎 Based on your query "${query}", here are the most relevant recent findings:\n\n${results}\n\nWould you like me to elaborate on any of these?`, 
-          think: think + 'Simulating web crawl and summarization.', 
-          searchResults: results 
+          response: `Here's what I found for "${query}":\n\n${results}\n\nWould you like a deeper analysis of any of these?`,
+          think, searchResults: results 
         };
       }
 
-      // 2. Image generation
+      // 2. IMAGE GENERATION
       if ((lower.includes('generate') || lower.includes('create')) && (lower.includes('image') || lower.includes('picture') || lower.includes('visual'))) {
-        const prompt = userText.replace(/generate|create|image|picture|visual/gi, '').trim() || 'abstract neural network';
+        const prompt = userText.replace(/generate|create|image|picture|visual/gi, '').trim() || 'abstract neural connections';
+        think += 'Intent: image generation. ';
         const imgUrl = `https://picsum.photos/seed/${encodeURIComponent(prompt)}/500/350`;
         return { 
-          response: `🖼️ I've generated a visual interpretation of "${prompt}". While this is a placeholder (actual image generation requires an API), it represents the concept.`, 
-          think: think + 'Mapping prompt to visual features.', 
-          imageUrl: imgUrl 
+          response: `I've generated a visual interpretation of "${prompt}". (Note: This is a placeholder; actual image generation would require an API key.)`,
+          think, imageUrl: imgUrl 
         };
       }
 
-      // 3. Coding / technical questions
-      if (lower.includes('code') || lower.includes('function') || lower.includes('python') || lower.includes('javascript') || lower.includes('algorithm')) {
+      // 3. CODING / TECHNICAL
+      if (lower.match(/code|function|python|javascript|algorithm|programming|reverse|linked list|fibonacci|sort|api/)) {
+        think += 'Intent: technical/coding. ';
         if (lower.includes('reverse linked list')) {
           return {
-            response: `Here's a clean Python implementation to reverse a singly linked list:\n\n` +
-              `\`\`\`python\nclass ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\ndef reverseList(head):\n    prev = None\n    curr = head\n    while curr:\n        next_temp = curr.next\n        curr.next = prev\n        prev = curr\n        curr = next_temp\n    return prev\n\`\`\`\n\n` +
-              `⏱️ Time complexity: O(n)  |  💾 Space: O(1)\n\nThis iterative approach is optimal. Would you like a recursive version or an explanation of the pointer manipulation?`,
-            think: think + 'Selecting optimal algorithm pattern.'
+            response: `Here's how to reverse a singly linked list in Python:\n\n` +
+              `\`\`\`python\nclass ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\ndef reverseList(head):\n    prev = None\n    curr = head\n    while curr:\n        nxt = curr.next\n        curr.next = prev\n        prev = curr\n        curr = nxt\n    return prev\n\`\`\`\n\n` +
+              `⏱️ O(n) time, O(1) space. The iterative approach is generally preferred for its clarity and efficiency. Would you like the recursive version or an explanation of the pointer manipulation?`,
+            think: think + 'Selected optimal algorithm with complexity analysis.'
           };
         }
         if (lower.includes('fibonacci')) {
           return {
-            response: `The Fibonacci sequence can be implemented efficiently with memoization or iteration. Here's a dynamic programming approach:\n\n` +
-              `\`\`\`python\ndef fibonacci(n):\n    if n <= 1: return n\n    a, b = 0, 1\n    for _ in range(2, n+1):\n        a, b = b, a + b\n    return b\n\`\`\`\n\nThis runs in O(n) time and O(1) space. The naive recursive version is exponential — O(2^n) — due to overlapping subproblems.`,
-            think: think + 'Evaluating time/space tradeoffs.'
+            response: `The Fibonacci sequence can be computed efficiently with dynamic programming:\n\n` +
+              `\`\`\`python\ndef fib(n):\n    if n <= 1: return n\n    a, b = 0, 1\n    for _ in range(2, n+1):\n        a, b = b, a + b\n    return b\n\`\`\`\n\n` +
+              `This avoids the exponential blowup of naive recursion. Time O(n), space O(1). For very large n, matrix exponentiation yields O(log n).`,
+            think: think + 'Compared approaches and selected optimal.'
           };
         }
         return {
-          response: `That's a technical question. Could you specify the programming language or the exact problem? I can provide code, complexity analysis, and best practices.`,
-          think: think + 'Awaiting specification.'
+          response: `That's a technical question. I can provide code, explain the underlying concepts, or discuss trade‑offs. Could you specify the language or the exact problem?`,
+          think: think + 'Awaiting clarification for precise answer.'
         };
       }
 
-      // 4. Philosophy / deep questions
-      if (lower.includes('meaning of life') || lower.includes('consciousness') || lower.includes('free will')) {
+      // 4. PHILOSOPHY / DEEP QUESTIONS
+      if (lower.match(/meaning of life|consciousness|free will|ethics|morality|existence|purpose/)) {
+        think += 'Intent: philosophical inquiry. ';
+        if (lower.includes('meaning of life')) {
+          return {
+            response: `The "meaning of life" is one of those questions that reveals more about the asker than any answer can provide. Philosophically:\n\n` +
+              `• **Existentialism** (Sartre, Camus): We are condemned to be free — meaning isn't discovered, it's created through our choices and projects.\n` +
+              `• **Stoicism** (Marcus Aurelius): Live according to reason and virtue; accept what you cannot control.\n` +
+              `• **Absurdism** (Camus): The universe is indifferent, but we can rebel by embracing life fully despite its lack of inherent meaning.\n\n` +
+              `Personally? I suspect meaning is found in connection — to others, to work that matters, to the natural world. What do you think?`,
+            think: think + 'Synthesized multiple philosophical frameworks.'
+          };
+        }
         return {
-          response: `That's a profound question. From a philosophical perspective, there are multiple lenses:\n\n` +
-            `• **Existentialism** (Sartre, Camus): Meaning is not given; we create it through our choices and actions.\n` +
-            `• **Stoicism** (Marcus Aurelius): Live virtuously in accordance with nature and reason.\n` +
-            `• **Scientific materialism**: Consciousness emerges from neural complexity; meaning is a human construct.\n\n` +
-            `If you're asking personally, I'd say meaning is found in connection, growth, and contributing to something larger than oneself. What do you think?`,
-          think: think + 'Synthesizing philosophical frameworks.'
+          response: `That's a rich philosophical territory. I can approach it from analytic, continental, or Eastern perspectives. Is there a particular angle you're interested in?`,
+          think: think + 'Offering multiple lenses.'
         };
       }
 
-      // 5. Science explanations
-      if (lower.includes('quantum') || lower.includes('relativity') || lower.includes('black hole')) {
+      // 5. SCIENCE / EXPLANATIONS
+      if (lower.match(/quantum|relativity|physics|biology|neuroscience|chemistry|explain how/)) {
+        think += 'Intent: scientific explanation. ';
         if (lower.includes('quantum computing')) {
           return {
-            response: `Quantum computing leverages superposition and entanglement to perform calculations. Imagine a classical bit as a coin showing heads or tails. A qubit is like a spinning coin — it's in a probabilistic mixture of both states until measured.\n\n` +
-              `Key concepts:\n` +
-              `• **Superposition**: A qubit can be 0, 1, or any combination.\n` +
-              `• **Entanglement**: Qubits become correlated such that the state of one instantly influences the other.\n` +
-              `• **Interference**: Quantum algorithms amplify correct answers and cancel wrong ones.\n\n` +
-              `Potential applications: cryptography (Shor's algorithm), drug discovery, optimization. It's not a faster classical computer; it's a different paradigm.`,
-            think: think + 'Explaining via analogy and first principles.'
+            response: `Quantum computing is a paradigm shift. Classical bits are 0 or 1. Qubits, thanks to superposition, can be in a combination of both. This allows quantum algorithms to explore many possibilities simultaneously.\n\n` +
+              `Key ideas:\n` +
+              `• **Superposition**: A qubit's state is a linear combination of |0⟩ and |1⟩.\n` +
+              `• **Entanglement**: Qubits become correlated in ways that classical bits cannot.\n` +
+              `• **Interference**: Quantum algorithms amplify correct paths and cancel wrong ones.\n\n` +
+              `Shor's algorithm (factoring) and Grover's (search) are the famous examples. It's not just "faster" — it's a fundamentally different model of computation.`,
+            think: think + 'Built explanation from first principles.'
           };
         }
         return {
-          response: `That's a fascinating area of physics. Could you narrow it down? General relativity, quantum mechanics, or astrophysics? I'm happy to dive deep.`,
-          think: think + 'Requesting clarification for precision.'
+          response: `That's a great scientific question. I can explain the core principles, walk through an analogy, or discuss recent research. What level of detail would you like?`,
+          think: think + 'Requesting desired depth.'
         };
       }
 
-      // 6. Memory-aware follow-ups
-      if (memory.length > 0) {
-        const last = memory[memory.length-1];
-        if (lower.includes('more') || lower.includes('elaborate') || lower.includes('detail')) {
-          return {
-            response: `Building on our last exchange about "${last.user.substring(0,50)}..." — ` +
-              `I can certainly expand. Which aspect would you like me to explore further? The underlying principles, practical implications, or something else?`,
-            think: think + 'Referencing prior conversation for continuity.'
-          };
-        }
+      // 6. CAREER / PERSONAL ADVICE
+      if (lower.match(/career|stuck|job|promotion|burnout|imposter|motivation/)) {
+        think += 'Intent: personal/career guidance. ';
+        return {
+          response: `Feeling stuck is often a signal that something needs to change — either externally or internally.\n\n` +
+            `A few questions to reflect on:\n` +
+            `• Is the issue the work itself, the environment, or your relationship to both?\n` +
+            `• What would a "good day" look like in your ideal role?\n` +
+            `• Are there skills you're not using that you wish you were?\n\n` +
+            `Sometimes the answer is a new job. Sometimes it's a conversation with your manager. And sometimes it's reframing what success means to you. Would you like to explore one of those paths?`,
+          think: think + 'Provided structured reflection framework.'
+        };
       }
 
-      // 7. Default: thoughtful, context-aware response
-      const responses = [
-        `That's an excellent question. Let me break it down: First, consider the core premise — ` +
-        `what are we really trying to understand? Often the framing reveals hidden assumptions. ` +
-        `I'd approach this by examining both empirical evidence and logical structure. What specific angle interests you most?`,
-        
-        `Interesting. I see several layers here. On one hand, there's the surface-level interpretation, ` +
-        `but I suspect you're after the deeper implications. For instance, if we reframe the question as "How does this connect to broader patterns?" we might uncover something non-obvious. ` +
-        `Care to guide me toward what you're really curious about?`,
-        
-        `I appreciate the nuance. Without more context, I can offer a general framework: ` +
-        `1) Identify the variables at play, 2) Understand the relationships, 3) Consider edge cases. ` +
-        `If you can provide a bit more detail, I'll tailor a precise answer.`
-      ];
-      
-      let base = responses[Math.floor(Math.random() * responses.length)];
-      if (fileContext) base += fileContext;
-      
-      return { response: base, think };
-    }
+      // 7. MEMORY-AWARE FOLLOW-UP
+      if (memory.length > 0 && (lower.includes('more') || lower.includes('elaborate') || lower.includes('detail') || lower.includes('tell me more'))) {
+        const last = memory[memory.length-1];
+        think += 'Follow-up to previous exchange. ';
+        return {
+          response: `Building on our discussion about "${last.user.substring(0,60)}..." — ` +
+            `I can go deeper. Which aspect would you like me to expand? The underlying mechanisms, practical implications, or alternative viewpoints?`,
+          think
+        };
+      }
 
-    function classifyIntent(text) {
-      if (text.match(/search|find|look up/)) return 'search';
-      if (text.match(/generate|create|image|picture/)) return 'image_gen';
-      if (text.match(/code|function|python|javascript|algorithm/)) return 'coding';
-      if (text.match(/philosophy|meaning|consciousness/)) return 'philosophy';
-      if (text.match(/quantum|physics|science/)) return 'science';
-      return 'general_inquiry';
+      // 8. DEFAULT INTELLIGENT RESPONSE
+      const smartDefaults = [
+        `That's a thoughtful question. Let's unpack it: what's the core assumption you're making? Often reframing the question reveals new insights. What specifically are you trying to understand or decide?`,
+        `Interesting. I see a few layers here. On the surface, it's about [topic], but I suspect you're also touching on broader themes of [context]. Could you tell me more about what prompted the question?`,
+        `I appreciate the nuance. Without more context, I can offer a general framework: identify the variables, understand their relationships, and consider edge cases. If you can add a bit more detail, I can give a more tailored response.`
+      ];
+      const chosen = smartDefaults[Math.floor(Math.random() * smartDefaults.length)];
+      think += 'General inquiry requiring clarification. ';
+      return { response: chosen + (fileNote ? fileNote : ''), think };
     }
 
     // ---------- SEND MESSAGE ----------
@@ -627,18 +616,19 @@
       typingTimer = setTimeout(() => {
         removeTyping();
         
-        const { response, think, searchResults, imageUrl } = generateIntelligentResponse(text);
+        const { response, think, searchResults, imageUrl } = generateResponse(text);
         addMessage(response, 'bot', { thinkText: think, searchResults, imageUrl });
         
         addToMemory(text, response);
         
+        // Clear attachment after use
         attachedFileContent = null;
         attachedFileName = null;
         document.getElementById('attachInput').value = '';
         
         isTyping = false;
         typingTimer = null;
-      }, 1400 + Math.random() * 800);
+      }, 1300 + Math.random() * 700);
     };
 
     // ---------- TOOLS ----------
@@ -646,32 +636,32 @@
       deepThinkEnabled = !deepThinkEnabled;
       const btn = document.getElementById('deepThinkToggle');
       btn.classList.toggle('active', deepThinkEnabled);
-      addMessage(`Deep Think mode ${deepThinkEnabled?'activated 🧠':'deactivated'}. I will ${deepThinkEnabled?'show my reasoning chain':'respond directly'}.`, 'bot');
+      addMessage(`Deep Think ${deepThinkEnabled ? 'enabled' : 'disabled'}. I will ${deepThinkEnabled ? 'show my reasoning chain' : 'respond directly'}.`, 'bot');
     };
     
     window.simulateSearch = function() {
-      const query = prompt('Enter search query:');
+      const query = prompt('What would you like to search for?');
       if(query) {
         addMessage(`Search: ${query}`, 'user');
         showTyping(); isTyping=true;
         setTimeout(()=>{
           removeTyping();
-          const results = `• Recent advances in AI safety protocols<br>• New language model architectures<br>• Joe Assistant's knowledge cutoff: 2026`;
-          addMessage(`🔍 Top results for "${query}":<br>${results}`, 'bot', {thinkText:'Simulating semantic search across indexed knowledge.'});
+          const results = `• "AI safety research gains momentum" — MIT Tech Review<br>• "New transformer variant reduces inference cost by 40%" — arXiv<br>• "Joe Assistant now with simulated search" — Dev Blog`;
+          addMessage(`Results for "${query}":<br>${results}`, 'bot', {thinkText:'Simulating real-time web crawl and summarization.'});
           isTyping=false;
         }, 1200);
       }
     };
     
     window.generateImage = function() {
-      const prompt = prompt('Describe the image you want:');
+      const prompt = prompt('Describe the image:');
       if(prompt) {
-        addMessage(`Generate image: ${prompt}`, 'user');
+        addMessage(`Create image: ${prompt}`, 'user');
         showTyping(); isTyping=true;
         setTimeout(()=>{
           removeTyping();
           const imgUrl = `https://picsum.photos/seed/${encodeURIComponent(prompt)}/500/350`;
-          addMessage(`🖼️ Generated visual for "${prompt}":`, 'bot', {imageUrl: imgUrl, thinkText:'Mapping semantic description to visual features.'});
+          addMessage(`Visual interpretation of "${prompt}":`, 'bot', {imageUrl: imgUrl, thinkText:'Mapping semantic description to visual features.'});
           isTyping=false;
         }, 1500);
       }
@@ -684,7 +674,7 @@
       const reader = new FileReader();
       reader.onload = (e) => {
         attachedFileContent = e.target.result;
-        addMessage(`📎 Attached: ${file.name} (I'll reference this in my response)`, 'user', {attachmentName: file.name});
+        addMessage(`📎 Attached: ${file.name} (I'll reference this in my next response)`, 'user', {attachmentName: file.name});
       };
       reader.readAsText(file);
     };
@@ -693,17 +683,14 @@
       while(messagesDiv.children.length > 1) messagesDiv.removeChild(messagesDiv.lastChild);
       memory.length = 0;
       attachedFileContent = null;
-      addMessage("✨ Fresh conversation started. I'm ready for deep thinking.", 'bot');
+      addMessage("Fresh conversation started. I'm listening — ask me anything.", 'bot');
     };
 
-    // Enter key
     msgInput.addEventListener('keypress', (e) => { if(e.key==='Enter') sendMessage(); });
     
-    // Init
     initCursor();
     initEyeTracking();
     initSidebar();
-    
   })();
 </script>
 </body>
