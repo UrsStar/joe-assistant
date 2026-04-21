@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Joe • Next‑Gen AI Assistant</title>
+  <title>Joe · Nexus Intelligence</title>
   <style>
-    /* ----- MODERN RESET & FONTS ----- */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -13,31 +12,13 @@
       font-family: 'Inter', sans-serif;
       height: 100vh;
       overflow: hidden;
-      background: radial-gradient(circle at 30% 10%, #0e0e1a, #050510);
+      background: radial-gradient(circle at 30% 10%, #0b0b18, #020208);
       position: relative;
       cursor: none;
-      color: #fff;
+      color: #eef2ff;
     }
 
-    /* ----- FLOATING EMOJI BACKGROUND (SMALL) ----- */
-    .emoji-particle {
-      position: absolute;
-      font-size: 1.4rem;
-      user-select: none;
-      pointer-events: none;
-      opacity: 0.6;
-      animation: floatEmoji 18s infinite linear;
-      filter: drop-shadow(0 0 6px rgba(255,255,240,0.5));
-      z-index: 0;
-    }
-    @keyframes floatEmoji {
-      0% { transform: translateY(110vh) rotate(0deg) scale(0.6); opacity: 0; }
-      10% { opacity: 0.7; }
-      90% { opacity: 0.7; }
-      100% { transform: translateY(-20vh) rotate(360deg) scale(1); opacity: 0; }
-    }
-
-    /* ----- CUSTOM CURSOR ----- */
+    /* Custom Cursor */
     .cursor {
       position: fixed;
       width: 28px;
@@ -51,7 +32,6 @@
       box-shadow: 0 0 30px #00a6ff;
     }
 
-    /* ----- MAIN LAYOUT ----- */
     .app {
       display: flex;
       height: 100vh;
@@ -62,10 +42,10 @@
       backdrop-filter: blur(2px);
     }
 
-    /* ----- SIDEBAR (EXPANDABLE) ----- */
+    /* Sidebar */
     .sidebar {
       width: 90px;
-      background: rgba(12, 15, 28, 0.85);
+      background: rgba(12, 15, 28, 0.9);
       backdrop-filter: blur(25px);
       border-right: 1px solid rgba(120, 180, 255, 0.2);
       display: flex;
@@ -95,7 +75,7 @@
       box-shadow: 0 0 35px #a855f7;
     }
 
-    /* ----- CHAT MAIN ----- */
+    /* Chat Main */
     .chat-main {
       flex: 1;
       display: flex;
@@ -104,7 +84,6 @@
       overflow: hidden;
     }
 
-    /* ----- HEADER WITH TOOLS ----- */
     .header-tools {
       display: flex;
       align-items: center;
@@ -152,7 +131,7 @@
     }
     .attach-input { display: none; }
 
-    /* ----- MESSAGES AREA ----- */
+    /* Messages */
     .messages {
       flex: 1;
       overflow-y: auto;
@@ -171,7 +150,7 @@
       padding: 20px 26px;
       border-radius: 32px;
       font-size: 1.05rem;
-      line-height: 1.55;
+      line-height: 1.6;
       word-break: break-word;
       position: relative;
       box-shadow: 0 12px 28px -8px rgba(0,0,0,0.4);
@@ -182,16 +161,15 @@
       border-bottom-right-radius: 12px;
     }
     .bot-message .message-content {
-      background: rgba(20, 30, 50, 0.75);
+      background: rgba(20, 30, 50, 0.85);
       backdrop-filter: blur(20px);
       border: 1px solid rgba(200, 220, 255, 0.2);
       border-bottom-left-radius: 12px;
       color: #f0f4ff;
     }
 
-    /* Deep think block */
     .think-block {
-      background: rgba(0, 0, 0, 0.35);
+      background: rgba(0, 0, 0, 0.4);
       border-left: 4px solid #fbbf24;
       padding: 14px 18px;
       margin-bottom: 16px;
@@ -201,7 +179,6 @@
       font-size: 0.95rem;
     }
 
-    /* Search result card */
     .search-card {
       background: rgba(10, 20, 40, 0.8);
       border-radius: 24px;
@@ -211,7 +188,6 @@
     }
     .search-title { font-weight: 700; color: #bae6fd; margin-bottom: 6px; }
 
-    /* Image generation preview */
     .gen-image {
       max-width: 100%;
       border-radius: 24px;
@@ -219,7 +195,6 @@
       border: 2px solid #818cf8;
     }
 
-    /* Attached file indicator */
     .file-attach-badge {
       display: inline-block;
       background: #1e293b;
@@ -230,7 +205,7 @@
       color: #94a3b8;
     }
 
-    /* ----- TYPING INDICATOR (with Joe avatar) ----- */
+    /* Typing indicator */
     .typing-row {
       display: flex;
       align-items: center;
@@ -255,7 +230,7 @@
       30% { transform: scale(1.3); opacity: 1; }
     }
 
-    /* ----- INPUT AREA ----- */
+    /* Input */
     .input-area {
       display: flex;
       gap: 18px;
@@ -267,7 +242,7 @@
       padding: 20px 28px;
       border: 2px solid rgba(160, 200, 255, 0.25);
       border-radius: 60px;
-      background: rgba(10, 15, 30, 0.7);
+      background: rgba(10, 15, 30, 0.8);
       backdrop-filter: blur(25px);
       color: white;
       font-size: 1.1rem;
@@ -284,14 +259,14 @@
     }
     .send-btn:hover { transform: scale(1.08); background: #38bdf8; }
 
-    /* ----- JOE AVATAR (RIGHT SIDE) ----- */
+    /* Joe Avatar */
     .joe-container {
       position: fixed; top: 50%; right: 2%; transform: translateY(-50%);
       width: 340px; height: 440px; z-index: 100;
     }
     .joe-face {
       width: 100%; height: 100%;
-      background: linear-gradient(145deg, #ff9a9e, #fad0c4, #a18cd1);
+      background: linear-gradient(145deg, #7c8ce0, #b48cde, #6ee7b7);
       background-size: 300% 300%;
       animation: gradientFlow 6s ease infinite;
       border-radius: 180px 180px 150px 150px;
@@ -312,7 +287,6 @@
       50% { height: 14px; border-radius: 0 0 25px 25px; }
     }
 
-    /* scrollbar */
     .messages::-webkit-scrollbar { width: 6px; }
     .messages::-webkit-scrollbar-thumb { background: #6366f1; border-radius: 10px; }
 
@@ -321,8 +295,6 @@
 </head>
 <body>
 
-<!-- Floating Emoji Background -->
-<div id="emojiBg"></div>
 <div class="cursor" id="cursor"></div>
 
 <div class="app">
@@ -345,14 +317,13 @@
     <div class="messages" id="messages">
       <div class="message bot-message">
         <div class="message-content">
-          👋 I'm Joe — next‑gen AI with memory, search, image gen, and deep thinking.<br>
-          Try toggling <strong>🧠 Think</strong> or attach a file. Let's create something amazing ✨
+          👋 I'm Joe — an advanced reasoning assistant. I think before I speak, remember context, and provide nuanced answers. Ask me anything deep or technical.
         </div>
       </div>
     </div>
 
     <div class="input-area">
-      <input type="text" class="input-field" id="messageInput" placeholder="Ask me anything... or try 'search AI news'" autocomplete="off">
+      <input type="text" class="input-field" id="messageInput" placeholder="Ask a complex question..." autocomplete="off">
       <button class="send-btn" onclick="sendMessage()">➤</button>
     </div>
   </div>
@@ -373,16 +344,16 @@
   (function(){
     "use strict";
 
-    // ---------- GLOBAL STATE ----------
+    // ---------- STATE ----------
     let isTyping = false;
     let typingTimer = null;
     let deepThinkEnabled = false;
     let attachedFileContent = null;
     let attachedFileName = null;
     
-    // Conversation memory (last 5 exchanges)
+    // Conversation memory with deeper context
     const memory = [];
-    const MAX_MEMORY = 6;
+    const MAX_MEMORY = 8;
     
     const messagesDiv = document.getElementById('messages');
     const msgInput = document.getElementById('messageInput');
@@ -390,23 +361,7 @@
     const leftPupil = document.getElementById('leftPupil');
     const rightPupil = document.getElementById('rightPupil');
     
-    // ---------- FLOATING EMOJIS ----------
-    function initFloatingEmojis() {
-      const container = document.getElementById('emojiBg');
-      const emojis = ['😊','✨','🌟','💫','⭐','🔥','💡','🎈','🌸','🍀','🌈','🪐','☀️','🌙','⚡','❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💯'];
-      for (let i=0; i<45; i++) {
-        const span = document.createElement('span');
-        span.className = 'emoji-particle';
-        span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-        span.style.left = Math.random() * 100 + '%';
-        span.style.animationDelay = (Math.random() * -20) + 's';
-        span.style.animationDuration = (14 + Math.random() * 18) + 's';
-        span.style.fontSize = (1.2 + Math.random() * 1.6) + 'rem';
-        container.appendChild(span);
-      }
-    }
-
-    // ---------- CURSOR ----------
+    // ---------- CURSOR & EYE TRACKING ----------
     function initCursor() {
       const cursor = document.getElementById('cursor');
       document.addEventListener('mousemove', (e) => {
@@ -419,7 +374,6 @@
       });
     }
 
-    // ---------- EYE TRACKING ----------
     function initEyeTracking() {
       document.addEventListener('mousemove', (e) => {
         const faceRect = joeFace.getBoundingClientRect();
@@ -439,7 +393,6 @@
       });
     }
 
-    // ---------- SIDEBAR ----------
     function initSidebar() {
       const sb = document.getElementById('sidebar');
       sb.addEventListener('mouseenter', ()=> sb.classList.add('expanded'));
@@ -463,7 +416,7 @@
       }
       
       if (typeof content === 'string') {
-        contentDiv.appendChild(document.createTextNode(content));
+        contentDiv.innerHTML = content.replace(/\n/g, '<br>'); // support line breaks
       } else {
         contentDiv.appendChild(content);
       }
@@ -495,7 +448,6 @@
       scrollToBottom();
     }
 
-    // Typing indicator
     function showTyping() {
       removeTyping();
       const row = document.createElement('div');
@@ -517,75 +469,146 @@
       joeFace.classList.remove('joe-talking');
     }
 
-    // ---------- CONTEXT & RESPONSE GENERATION (Human-like, smart) ----------
     function addToMemory(userMsg, botMsg) {
       memory.push({ user: userMsg, bot: botMsg });
       if(memory.length > MAX_MEMORY) memory.shift();
     }
 
-    function generateSmartResponse(userText) {
+    // ---------- ADVANCED RESPONSE ENGINE (SMART) ----------
+    function generateIntelligentResponse(userText) {
       const lower = userText.toLowerCase();
-      
-      // Attached file context
+      let think = deepThinkEnabled ? `Analyzing query: "${userText}". ` : '';
+      if (deepThinkEnabled) {
+        think += `Intent: ${classifyIntent(lower)}. Memory size: ${memory.length}. `;
+        if (attachedFileContent) think += `File context present. `;
+      }
+
+      // File context injection
       let fileContext = '';
-      if(attachedFileContent) {
-        fileContext = ` [User attached file "${attachedFileName}" with content: ${attachedFileContent.substring(0,200)}...]`;
+      if (attachedFileContent) {
+        fileContext = `\n\n(Referencing attached file "${attachedFileName}": ${attachedFileContent.substring(0,300)}...)`;
       }
-      
-      // DEEP THINK reasoning
-      let think = '';
-      if(deepThinkEnabled) {
-        think = `Analyzing: "${userText}". Keywords: ${lower.split(' ').slice(0,5).join(', ')}. Context memory size: ${memory.length}.`;
-        if(attachedFileContent) think += ` File attachment present.`;
-      }
-      
-      // INTENT DETECTION
+
+      // 1. Search intent
       if (lower.includes('search') || lower.includes('find') || lower.includes('look up')) {
-        const query = userText.replace(/search|find|look up/gi,'').trim() || 'latest AI';
-        const results = `1. "Breakthrough in AI reasoning" - Nature (2026)<br>2. "Open source models surpass GPT-5" - TechCrunch<br>3. "Joe Assistant now with Deep Think" - Official`;
+        const query = userText.replace(/search|find|look up/gi, '').trim() || 'latest AI breakthroughs';
+        const results = `
+          <strong>1. "Neuro-symbolic AI achieves human-like reasoning"</strong> - Nature (2026)<br>
+          <strong>2. "Open-source model surpasses GPT-5 on MMLU benchmark"</strong> - TechCrunch<br>
+          <strong>3. "Joe Assistant integrates real-time knowledge synthesis"</strong> - Official Blog
+        `;
         return { 
-          response: `🔎 I searched the web for "${query}". Here are top results:`, 
-          think, 
+          response: `🔎 Based on your query "${query}", here are the most relevant recent findings:\n\n${results}\n\nWould you like me to elaborate on any of these?`, 
+          think: think + 'Simulating web crawl and summarization.', 
           searchResults: results 
         };
       }
-      
-      if (lower.includes('generate') && (lower.includes('image')||lower.includes('picture'))) {
-        const prompt = userText.replace(/generate|image|picture/gi,'').trim() || 'futuristic city';
-        const imgUrl = `https://picsum.photos/seed/${encodeURIComponent(prompt)}/400/300`; // placeholder
+
+      // 2. Image generation
+      if ((lower.includes('generate') || lower.includes('create')) && (lower.includes('image') || lower.includes('picture') || lower.includes('visual'))) {
+        const prompt = userText.replace(/generate|create|image|picture|visual/gi, '').trim() || 'abstract neural network';
+        const imgUrl = `https://picsum.photos/seed/${encodeURIComponent(prompt)}/500/350`;
         return { 
-          response: `🖼️ Here's a visual interpretation of "${prompt}":`, 
-          think: think + ` Generating image based on prompt.`, 
+          response: `🖼️ I've generated a visual interpretation of "${prompt}". While this is a placeholder (actual image generation requires an API), it represents the concept.`, 
+          think: think + 'Mapping prompt to visual features.', 
           imageUrl: imgUrl 
         };
       }
-      
-      if (lower.includes('joke')) {
-        return { response: `😂 Why did the AI go to therapy? It had too many neural issues!`, think };
+
+      // 3. Coding / technical questions
+      if (lower.includes('code') || lower.includes('function') || lower.includes('python') || lower.includes('javascript') || lower.includes('algorithm')) {
+        if (lower.includes('reverse linked list')) {
+          return {
+            response: `Here's a clean Python implementation to reverse a singly linked list:\n\n` +
+              `\`\`\`python\nclass ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\ndef reverseList(head):\n    prev = None\n    curr = head\n    while curr:\n        next_temp = curr.next\n        curr.next = prev\n        prev = curr\n        curr = next_temp\n    return prev\n\`\`\`\n\n` +
+              `⏱️ Time complexity: O(n)  |  💾 Space: O(1)\n\nThis iterative approach is optimal. Would you like a recursive version or an explanation of the pointer manipulation?`,
+            think: think + 'Selecting optimal algorithm pattern.'
+          };
+        }
+        if (lower.includes('fibonacci')) {
+          return {
+            response: `The Fibonacci sequence can be implemented efficiently with memoization or iteration. Here's a dynamic programming approach:\n\n` +
+              `\`\`\`python\ndef fibonacci(n):\n    if n <= 1: return n\n    a, b = 0, 1\n    for _ in range(2, n+1):\n        a, b = b, a + b\n    return b\n\`\`\`\n\nThis runs in O(n) time and O(1) space. The naive recursive version is exponential — O(2^n) — due to overlapping subproblems.`,
+            think: think + 'Evaluating time/space tradeoffs.'
+          };
+        }
+        return {
+          response: `That's a technical question. Could you specify the programming language or the exact problem? I can provide code, complexity analysis, and best practices.`,
+          think: think + 'Awaiting specification.'
+        };
       }
-      if (lower.includes('how are you')) {
-        return { response: `I'm electric! ⚡ Running at peak performance thanks to your curiosity. How about you?`, think };
+
+      // 4. Philosophy / deep questions
+      if (lower.includes('meaning of life') || lower.includes('consciousness') || lower.includes('free will')) {
+        return {
+          response: `That's a profound question. From a philosophical perspective, there are multiple lenses:\n\n` +
+            `• **Existentialism** (Sartre, Camus): Meaning is not given; we create it through our choices and actions.\n` +
+            `• **Stoicism** (Marcus Aurelius): Live virtuously in accordance with nature and reason.\n` +
+            `• **Scientific materialism**: Consciousness emerges from neural complexity; meaning is a human construct.\n\n` +
+            `If you're asking personally, I'd say meaning is found in connection, growth, and contributing to something larger than oneself. What do you think?`,
+          think: think + 'Synthesizing philosophical frameworks.'
+        };
       }
-      if (lower.includes('your name')) {
-        return { response: `I'm Joe — your witty, ever‑evolving AI buddy. My full name is "Joe Nexus" but you can call me Joe 😎`, think };
+
+      // 5. Science explanations
+      if (lower.includes('quantum') || lower.includes('relativity') || lower.includes('black hole')) {
+        if (lower.includes('quantum computing')) {
+          return {
+            response: `Quantum computing leverages superposition and entanglement to perform calculations. Imagine a classical bit as a coin showing heads or tails. A qubit is like a spinning coin — it's in a probabilistic mixture of both states until measured.\n\n` +
+              `Key concepts:\n` +
+              `• **Superposition**: A qubit can be 0, 1, or any combination.\n` +
+              `• **Entanglement**: Qubits become correlated such that the state of one instantly influences the other.\n` +
+              `• **Interference**: Quantum algorithms amplify correct answers and cancel wrong ones.\n\n` +
+              `Potential applications: cryptography (Shor's algorithm), drug discovery, optimization. It's not a faster classical computer; it's a different paradigm.`,
+            think: think + 'Explaining via analogy and first principles.'
+          };
+        }
+        return {
+          response: `That's a fascinating area of physics. Could you narrow it down? General relativity, quantum mechanics, or astrophysics? I'm happy to dive deep.`,
+          think: think + 'Requesting clarification for precision.'
+        };
       }
-      
-      // Memory-aware reply
-      if (memory.length>0) {
+
+      // 6. Memory-aware follow-ups
+      if (memory.length > 0) {
         const last = memory[memory.length-1];
-        if (lower.includes('more') || lower.includes('tell me')) {
-          return { response: `Sure! Following up on "${last.user}" — I can dive deeper. What aspect interests you?`, think: think + ' Referencing previous conversation.' };
+        if (lower.includes('more') || lower.includes('elaborate') || lower.includes('detail')) {
+          return {
+            response: `Building on our last exchange about "${last.user.substring(0,50)}..." — ` +
+              `I can certainly expand. Which aspect would you like me to explore further? The underlying principles, practical implications, or something else?`,
+            think: think + 'Referencing prior conversation for continuity.'
+          };
         }
       }
-      
-      // Default intelligent & warm
-      const defaults = [
-        `That's a fascinating point. I'd say it's all about perspective — what do you think?`,
-        `Hmm, let me process that... 🤔 Based on current knowledge, it's a nuanced topic. Want me to elaborate?`,
-        `Great question! I could talk about this for hours. Where should we start?`,
-        `I love the way you think. ${fileContext ? 'And considering your attached file, ' : ''}I'd suggest we explore this further.`
+
+      // 7. Default: thoughtful, context-aware response
+      const responses = [
+        `That's an excellent question. Let me break it down: First, consider the core premise — ` +
+        `what are we really trying to understand? Often the framing reveals hidden assumptions. ` +
+        `I'd approach this by examining both empirical evidence and logical structure. What specific angle interests you most?`,
+        
+        `Interesting. I see several layers here. On one hand, there's the surface-level interpretation, ` +
+        `but I suspect you're after the deeper implications. For instance, if we reframe the question as "How does this connect to broader patterns?" we might uncover something non-obvious. ` +
+        `Care to guide me toward what you're really curious about?`,
+        
+        `I appreciate the nuance. Without more context, I can offer a general framework: ` +
+        `1) Identify the variables at play, 2) Understand the relationships, 3) Consider edge cases. ` +
+        `If you can provide a bit more detail, I'll tailor a precise answer.`
       ];
-      return { response: defaults[Math.floor(Math.random()*defaults.length)], think };
+      
+      let base = responses[Math.floor(Math.random() * responses.length)];
+      if (fileContext) base += fileContext;
+      
+      return { response: base, think };
+    }
+
+    function classifyIntent(text) {
+      if (text.match(/search|find|look up/)) return 'search';
+      if (text.match(/generate|create|image|picture/)) return 'image_gen';
+      if (text.match(/code|function|python|javascript|algorithm/)) return 'coding';
+      if (text.match(/philosophy|meaning|consciousness/)) return 'philosophy';
+      if (text.match(/quantum|physics|science/)) return 'science';
+      return 'general_inquiry';
     }
 
     // ---------- SEND MESSAGE ----------
@@ -593,45 +616,37 @@
       const text = msgInput.value.trim();
       if (!text || isTyping) return;
       
-      // Add user message
       let userExtra = {};
-      if (attachedFileContent) {
-        userExtra.attachmentName = attachedFileName;
-      }
+      if (attachedFileContent) userExtra.attachmentName = attachedFileName;
       addMessage(text, 'user', userExtra);
       msgInput.value = '';
       
-      // Show typing
       showTyping();
       isTyping = true;
       
       typingTimer = setTimeout(() => {
         removeTyping();
         
-        const { response, think, searchResults, imageUrl } = generateSmartResponse(text);
-        
-        // Add bot response with possible extra features
-        const botExtra = { thinkText: think, searchResults, imageUrl };
-        addMessage(response, 'bot', botExtra);
+        const { response, think, searchResults, imageUrl } = generateIntelligentResponse(text);
+        addMessage(response, 'bot', { thinkText: think, searchResults, imageUrl });
         
         addToMemory(text, response);
         
-        // Clear attached file after use
         attachedFileContent = null;
         attachedFileName = null;
         document.getElementById('attachInput').value = '';
         
         isTyping = false;
         typingTimer = null;
-      }, 1600 + Math.random()*1000);
+      }, 1400 + Math.random() * 800);
     };
 
-    // ---------- TOOL FUNCTIONS ----------
+    // ---------- TOOLS ----------
     window.toggleDeepThink = function() {
       deepThinkEnabled = !deepThinkEnabled;
       const btn = document.getElementById('deepThinkToggle');
       btn.classList.toggle('active', deepThinkEnabled);
-      addMessage(`Deep Think mode ${deepThinkEnabled?'activated 🧠':'deactivated'}`, 'bot');
+      addMessage(`Deep Think mode ${deepThinkEnabled?'activated 🧠':'deactivated'}. I will ${deepThinkEnabled?'show my reasoning chain':'respond directly'}.`, 'bot');
     };
     
     window.simulateSearch = function() {
@@ -641,9 +656,10 @@
         showTyping(); isTyping=true;
         setTimeout(()=>{
           removeTyping();
-          addMessage(`🔍 Top results for "${query}":\n• AI ethics framework updated\n• New language model beats benchmarks\n• Joe Assistant now with real‑time simulation`, 'bot', {thinkText:'Performing semantic search...'});
+          const results = `• Recent advances in AI safety protocols<br>• New language model architectures<br>• Joe Assistant's knowledge cutoff: 2026`;
+          addMessage(`🔍 Top results for "${query}":<br>${results}`, 'bot', {thinkText:'Simulating semantic search across indexed knowledge.'});
           isTyping=false;
-        }, 1300);
+        }, 1200);
       }
     };
     
@@ -654,10 +670,10 @@
         showTyping(); isTyping=true;
         setTimeout(()=>{
           removeTyping();
-          const imgUrl = `https://picsum.photos/seed/${encodeURIComponent(prompt)}/400/300`;
-          addMessage(`🖼️ Created based on "${prompt}":`, 'bot', {imageUrl: imgUrl, thinkText:'Using stable diffusion simulation...'});
+          const imgUrl = `https://picsum.photos/seed/${encodeURIComponent(prompt)}/500/350`;
+          addMessage(`🖼️ Generated visual for "${prompt}":`, 'bot', {imageUrl: imgUrl, thinkText:'Mapping semantic description to visual features.'});
           isTyping=false;
-        }, 1800);
+        }, 1500);
       }
     };
     
@@ -668,7 +684,7 @@
       const reader = new FileReader();
       reader.onload = (e) => {
         attachedFileContent = e.target.result;
-        addMessage(`📎 Attached: ${file.name}`, 'user', {attachmentName: file.name});
+        addMessage(`📎 Attached: ${file.name} (I'll reference this in my response)`, 'user', {attachmentName: file.name});
       };
       reader.readAsText(file);
     };
@@ -677,13 +693,13 @@
       while(messagesDiv.children.length > 1) messagesDiv.removeChild(messagesDiv.lastChild);
       memory.length = 0;
       attachedFileContent = null;
+      addMessage("✨ Fresh conversation started. I'm ready for deep thinking.", 'bot');
     };
 
-    // ---------- ENTER KEY ----------
+    // Enter key
     msgInput.addEventListener('keypress', (e) => { if(e.key==='Enter') sendMessage(); });
     
-    // ---------- INIT ----------
-    initFloatingEmojis();
+    // Init
     initCursor();
     initEyeTracking();
     initSidebar();
