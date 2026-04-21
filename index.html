@@ -1,779 +1,694 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Joe Assistant • Fixed</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Joe • Next‑Gen AI Assistant</title>
+  <style>
+    /* ----- MODERN RESET & FONTS ----- */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      background: radial-gradient(circle at 30% 10%, #0e0e1a, #050510);
+      position: relative;
+      cursor: none;
+      color: #fff;
+    }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            height: 100vh;
-            overflow: hidden;
-            background: linear-gradient(135deg, #0c0c0c 0%, #1a0033 50%, #0f0f23 100%);
-            position: relative;
-            cursor: none;
-        }
+    /* ----- FLOATING EMOJI BACKGROUND (SMALL) ----- */
+    .emoji-particle {
+      position: absolute;
+      font-size: 1.4rem;
+      user-select: none;
+      pointer-events: none;
+      opacity: 0.6;
+      animation: floatEmoji 18s infinite linear;
+      filter: drop-shadow(0 0 6px rgba(255,255,240,0.5));
+      z-index: 0;
+    }
+    @keyframes floatEmoji {
+      0% { transform: translateY(110vh) rotate(0deg) scale(0.6); opacity: 0; }
+      10% { opacity: 0.7; }
+      90% { opacity: 0.7; }
+      100% { transform: translateY(-20vh) rotate(360deg) scale(1); opacity: 0; }
+    }
 
-        /* Live Animated Background */
-        .bg-particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            pointer-events: none;
-        }
+    /* ----- CUSTOM CURSOR ----- */
+    .cursor {
+      position: fixed;
+      width: 28px;
+      height: 28px;
+      background: radial-gradient(circle, #a3dcff 0%, #3b7b9c 80%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      mix-blend-mode: exclusion;
+      transition: transform 0.1s ease, width 0.2s, height 0.2s;
+      box-shadow: 0 0 30px #00a6ff;
+    }
 
-        .particle {
-            position: absolute;
-            background: radial-gradient(circle, rgba(120,119,198,0.8) 0%, transparent 70%);
-            border-radius: 50%;
-            animation: float 25s infinite linear;
-        }
+    /* ----- MAIN LAYOUT ----- */
+    .app {
+      display: flex;
+      height: 100vh;
+      max-width: 1800px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 10;
+      backdrop-filter: blur(2px);
+    }
 
-        @keyframes float {
-            0% { 
-                transform: translateY(100vh) rotate(0deg) scale(0.5); 
-                opacity: 0; 
-            }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { 
-                transform: translateY(-100px) rotate(360deg) scale(1.2); 
-                opacity: 0; 
-            }
-        }
+    /* ----- SIDEBAR (EXPANDABLE) ----- */
+    .sidebar {
+      width: 90px;
+      background: rgba(12, 15, 28, 0.85);
+      backdrop-filter: blur(25px);
+      border-right: 1px solid rgba(120, 180, 255, 0.2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 0;
+      transition: width 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    .sidebar.expanded { width: 280px; }
+    .new-chat-btn {
+      width: 58px;
+      height: 58px;
+      border-radius: 30px;
+      background: linear-gradient(145deg, #6b5bff, #a855f7);
+      border: none;
+      color: white;
+      font-size: 26px;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(107, 91, 255, 0.4);
+      transition: all 0.25s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .new-chat-btn:hover {
+      transform: scale(1.08) rotate(3deg);
+      box-shadow: 0 0 35px #a855f7;
+    }
 
-        /* Custom Cursor */
-        .cursor {
-            position: fixed;
-            width: 24px;
-            height: 24px;
-            background: radial-gradient(circle, #00d4ff 0%, rgba(0,212,255,0.3) 70%);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 1000;
-            mix-blend-mode: difference;
-            transition: all 0.08s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 20px rgba(0,212,255,0.5);
-        }
+    /* ----- CHAT MAIN ----- */
+    .chat-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 30px 40px 20px 40px;
+      overflow: hidden;
+    }
 
-        /* Main Container */
-        .container {
-            display: flex;
-            height: 100vh;
-            max-width: 1600px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 10;
-        }
+    /* ----- HEADER WITH TOOLS ----- */
+    .header-tools {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 25px;
+    }
+    .logo {
+      font-size: 2.8rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #c084fc, #60a5fa, #34d399);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.02em;
+      text-shadow: 0 0 25px #7c3aed;
+    }
+    .toolbar {
+      display: flex;
+      gap: 12px;
+    }
+    .tool-btn {
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 40px;
+      padding: 12px 22px;
+      color: #e0f2fe;
+      font-weight: 500;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .tool-btn.active {
+      background: #7c3aed;
+      border-color: #c084fc;
+      box-shadow: 0 0 20px #a78bfa;
+    }
+    .tool-btn:hover {
+      background: rgba(124, 58, 237, 0.4);
+      transform: translateY(-2px);
+    }
+    .attach-input { display: none; }
 
-        /* Sidebar */
-        .sidebar {
-            width: 80px;
-            background: rgba(20, 20, 40, 0.95);
-            backdrop-filter: blur(25px);
-            border-right: 1px solid rgba(255,255,255,0.15);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 30px 0;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+    /* ----- MESSAGES AREA ----- */
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 15px;
+      scroll-behavior: smooth;
+    }
+    .message {
+      margin-bottom: 24px;
+      display: flex;
+      animation: messageSlide 0.4s ease-out;
+    }
+    .user-message { justify-content: flex-end; }
+    .bot-message { justify-content: flex-start; }
+    .message-content {
+      max-width: 78%;
+      padding: 20px 26px;
+      border-radius: 32px;
+      font-size: 1.05rem;
+      line-height: 1.55;
+      word-break: break-word;
+      position: relative;
+      box-shadow: 0 12px 28px -8px rgba(0,0,0,0.4);
+    }
+    .user-message .message-content {
+      background: linear-gradient(145deg, #4f46e5, #9333ea);
+      color: white;
+      border-bottom-right-radius: 12px;
+    }
+    .bot-message .message-content {
+      background: rgba(20, 30, 50, 0.75);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(200, 220, 255, 0.2);
+      border-bottom-left-radius: 12px;
+      color: #f0f4ff;
+    }
 
-        .sidebar.expanded {
-            width: 300px;
-        }
+    /* Deep think block */
+    .think-block {
+      background: rgba(0, 0, 0, 0.35);
+      border-left: 4px solid #fbbf24;
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      border-radius: 18px;
+      font-style: italic;
+      color: #fde68a;
+      font-size: 0.95rem;
+    }
 
-        .new-chat-btn {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 25px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-            color: white;
-            font-size: 24px;
-        }
+    /* Search result card */
+    .search-card {
+      background: rgba(10, 20, 40, 0.8);
+      border-radius: 24px;
+      padding: 16px;
+      margin: 16px 0;
+      border: 1px solid #38bdf8;
+    }
+    .search-title { font-weight: 700; color: #bae6fd; margin-bottom: 6px; }
 
-        .new-chat-btn:hover {
-            transform: scale(1.15) rotate(5deg);
-            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
-        }
+    /* Image generation preview */
+    .gen-image {
+      max-width: 100%;
+      border-radius: 24px;
+      margin-top: 16px;
+      border: 2px solid #818cf8;
+    }
 
-        .new-chat-btn::before {
-            content: 'New Chat';
-            position: absolute;
-            left: 70px;
-            white-space: nowrap;
-            color: white;
-            font-weight: 500;
-            font-size: 14px;
-            opacity: 0;
-            transition: all 0.3s ease;
-        }
+    /* Attached file indicator */
+    .file-attach-badge {
+      display: inline-block;
+      background: #1e293b;
+      padding: 4px 14px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      margin-top: 8px;
+      color: #94a3b8;
+    }
 
-        .sidebar.expanded .new-chat-btn::before {
-            opacity: 1;
-            left: 75px;
-        }
+    /* ----- TYPING INDICATOR (with Joe avatar) ----- */
+    .typing-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 8px 0;
+    }
+    .typing-avatar-mini {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(45deg, #f97316, #ec4899);
+      border-radius: 30px;
+    }
+    .typing-dots { display: flex; gap: 6px; }
+    .typing-dot {
+      width: 10px; height: 10px; background: #b0c4ff; border-radius: 50%;
+      animation: dotPulse 1.5s infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes dotPulse {
+      0%,60%,100% { transform: scale(0.8); opacity: 0.4; }
+      30% { transform: scale(1.3); opacity: 1; }
+    }
 
-        /* Main Chat Area */
-        .chat-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 40px;
-            overflow: hidden;
-        }
+    /* ----- INPUT AREA ----- */
+    .input-area {
+      display: flex;
+      gap: 18px;
+      margin-top: 20px;
+      align-items: center;
+    }
+    .input-field {
+      flex: 1;
+      padding: 20px 28px;
+      border: 2px solid rgba(160, 200, 255, 0.25);
+      border-radius: 60px;
+      background: rgba(10, 15, 30, 0.7);
+      backdrop-filter: blur(25px);
+      color: white;
+      font-size: 1.1rem;
+      outline: none;
+      transition: 0.2s;
+    }
+    .input-field:focus { border-color: #818cf8; box-shadow: 0 0 30px #4f46e5; }
+    .send-btn {
+      width: 72px; height: 72px; border-radius: 40px;
+      background: linear-gradient(145deg, #06b6d4, #3b82f6);
+      border: none; color: white; font-size: 28px;
+      cursor: pointer; box-shadow: 0 8px 28px #2563eb;
+      transition: 0.2s;
+    }
+    .send-btn:hover { transform: scale(1.08); background: #38bdf8; }
 
-        .header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 35px;
-            opacity: 0;
-            transform: translateY(-30px);
-            animation: slideInDown 1s 0.3s forwards;
-        }
+    /* ----- JOE AVATAR (RIGHT SIDE) ----- */
+    .joe-container {
+      position: fixed; top: 50%; right: 2%; transform: translateY(-50%);
+      width: 340px; height: 440px; z-index: 100;
+    }
+    .joe-face {
+      width: 100%; height: 100%;
+      background: linear-gradient(145deg, #ff9a9e, #fad0c4, #a18cd1);
+      background-size: 300% 300%;
+      animation: gradientFlow 6s ease infinite;
+      border-radius: 180px 180px 150px 150px;
+      box-shadow: 0 30px 60px #00000055, inset 0 10px 30px #ffffff30;
+    }
+    @keyframes gradientFlow { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+    .joe-eyes { position: absolute; top: 28%; left: 18%; right: 18%; display: flex; justify-content: space-between; }
+    .eye { width: 70px; height: 70px; background: #fff; border-radius: 50%; position: relative; }
+    .pupil { width: 28px; height: 28px; background: #1e1b4b; border-radius: 50%; position: absolute; top: 50%; left: 50%; }
+    .mouth {
+      position: absolute; bottom: 26%; left: 50%; transform: translateX(-50%);
+      width: 90px; height: 40px; border: 6px solid #fff; border-top: none;
+      border-radius: 0 0 60px 60px; transition: all 0.15s;
+    }
+    .joe-talking .mouth { animation: mouthTalk 0.45s infinite; }
+    @keyframes mouthTalk {
+      0%,100% { height: 40px; border-radius: 0 0 60px 60px; }
+      50% { height: 14px; border-radius: 0 0 25px 25px; }
+    }
 
-        @keyframes slideInDown {
-            to { opacity: 1; transform: translateY(0); }
-        }
+    /* scrollbar */
+    .messages::-webkit-scrollbar { width: 6px; }
+    .messages::-webkit-scrollbar-thumb { background: #6366f1; border-radius: 10px; }
 
-        .logo {
-            font-size: 3rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #00d4ff 0%, #ff6b9d 50%, #667eea 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-right: 25px;
-            text-shadow: 0 0 30px rgba(0,212,255,0.5);
-        }
-
-        /* Joe Avatar */
-        .joe-container {
-            position: fixed;
-            top: 50%;
-            right: 4%;
-            transform: translateY(-50%);
-            width: 320px;
-            height: 420px;
-            z-index: 100;
-            opacity: 0;
-            animation: fadeInUp 1.2s 0.6s forwards;
-        }
-
-        @keyframes fadeInUp {
-            to { opacity: 1; transform: translateY(-50%) scale(1); }
-        }
-
-        .joe-avatar {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            filter: drop-shadow(0 20px 40px rgba(0,0,0,0.4));
-        }
-
-        .joe-face {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(145deg, #ff6b9d, #667eea, #00d4ff);
-            background-size: 200% 200%;
-            animation: gradientShift 4s ease infinite;
-            border-radius: 160px 160px 150px 150px;
-            position: relative;
-            box-shadow: 
-                0 25px 50px rgba(0,0,0,0.4),
-                inset 0 15px 30px rgba(255,255,255,0.15);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-        }
-
-        @keyframes gradientShift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-
-        .joe-eyes {
-            position: absolute;
-            top: 28%;
-            left: 18%;
-            right: 18%;
-            display: flex;
-            justify-content: space-between;
-            height: 65px;
-        }
-
-        .eye {
-            width: 65px;
-            height: 65px;
-            background: linear-gradient(145deg, #fff, #f0f0f0);
-            border-radius: 50%;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 
-                inset 0 6px 12px rgba(0,0,0,0.2),
-                0 4px 12px rgba(0,0,0,0.2);
-        }
-
-        .pupil {
-            width: 26px;
-            height: 26px;
-            background: radial-gradient(circle, #333 40%, #111);
-            border-radius: 50%;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            transition: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-        }
-
-        .mouth {
-            position: absolute;
-            bottom: 28%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 85px;
-            height: 35px;
-            border: 5px solid #fff;
-            border-top: none;
-            border-radius: 0 0 60px 60px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .joe-talking .mouth {
-            animation: talk 0.4s infinite ease-in-out;
-        }
-
-        @keyframes talk {
-            0%, 100% { 
-                height: 35px; 
-                border-radius: 0 0 60px 60px; 
-                transform: translateX(-50%) scaleY(1); 
-            }
-            50% { 
-                height: 12px; 
-                border-radius: 0 0 25px 25px; 
-                transform: translateX(-50%) scaleY(0.6); 
-            }
-        }
-
-        /* Messages */
-        .messages {
-            flex: 1;
-            overflow-y: auto;
-            padding-right: 20px;
-            scroll-behavior: smooth;
-            scroll-padding-bottom: 100px;
-        }
-
-        .message {
-            margin-bottom: 25px;
-            opacity: 0;
-            transform: translateX(60px);
-            animation: slideInRight 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-
-        .message:nth-child(even) {
-            animation-delay: 0.1s;
-        }
-
-        @keyframes slideInRight {
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        .user-message {
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        .bot-message {
-            display: flex;
-        }
-
-        .message-content {
-            max-width: 75%;
-            padding: 22px 28px;
-            border-radius: 28px;
-            position: relative;
-            word-wrap: break-word;
-            font-size: 16px;
-            line-height: 1.6;
-        }
-
-        .user-message .message-content {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-bottom-right-radius: 8px;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-        }
-
-        .bot-message .message-content {
-            background: rgba(255,255,255,0.12);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(255,255,255,0.25);
-            border-bottom-left-radius: 8px;
-            color: #f0f0f0;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-        }
-
-        /* Input Area */
-        .input-container {
-            display: flex;
-            gap: 18px;
-            margin-top: 25px;
-            opacity: 0;
-            transform: translateY(30px);
-            animation: slideInUp 1s 1s forwards;
-        }
-
-        @keyframes slideInUp {
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .input-field {
-            flex: 1;
-            padding: 22px 30px;
-            border: 2px solid rgba(255,255,255,0.25);
-            border-radius: 50px;
-            background: rgba(255,255,255,0.08);
-            backdrop-filter: blur(25px);
-            color: #f0f0f0;
-            font-size: 16px;
-            outline: none;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-family: inherit;
-        }
-
-        .input-field:focus {
-            border-color: #00d4ff;
-            box-shadow: 0 0 0 4px rgba(0,212,255,0.2);
-            background: rgba(255,255,255,0.12);
-        }
-
-        .input-field::placeholder {
-            color: rgba(255,255,255,0.5);
-        }
-
-        .send-btn {
-            width: 68px;
-            height: 68px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #00d4ff 0%, #ff6b9d 100%);
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 10px 30px rgba(0,212,255,0.4);
-            font-size: 20px;
-            color: white;
-        }
-
-        .send-btn:hover {
-            transform: scale(1.12) rotate(10deg);
-            box-shadow: 0 20px 50px rgba(0,212,255,0.6);
-        }
-
-        /* Scrollbar */
-        .messages::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .messages::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.08);
-            border-radius: 12px;
-        }
-
-        .messages::-webkit-scrollbar-thumb {
-            background: linear-gradient(135deg, rgba(102,126,234,0.8), rgba(118,75,162,0.8));
-            border-radius: 12px;
-        }
-
-        /* Typing indicator */
-        .typing {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 22px 28px;
-            color: rgba(255,255,255,0.6);
-            animation: slideInRight 0.6s forwards;
-        }
-
-        .typing-avatar {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(145deg, #ff6b9d, #667eea);
-            border-radius: 50%;
-            position: relative;
-            flex-shrink: 0;
-        }
-
-        .typing-dots {
-            display: flex;
-            gap: 6px;
-        }
-
-        .typing-dot {
-            width: 10px;
-            height: 10px;
-            background: rgba(255,255,255,0.6);
-            border-radius: 50%;
-            animation: typing 1.4s infinite ease-in-out;
-        }
-
-        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes typing {
-            0%, 60%, 100% { 
-                transform: translateY(0); 
-                opacity: 0.6; 
-            }
-            30% { 
-                transform: translateY(-12px); 
-                opacity: 1; 
-            }
-        }
-
-        /* Responsive */
-        @media (max-width: 1024px) {
-            .joe-container {
-                right: 2%;
-                width: 280px;
-                height: 360px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .joe-container { display: none; }
-            .container { padding: 20px; }
-            .logo { font-size: 2.2rem; }
-        }
-    </style>
+    @keyframes messageSlide { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
 </head>
 <body>
-    <div class="bg-particles" id="particles"></div>
-    <div class="cursor" id="cursor"></div>
-    
-    <div class="container">
-        <div class="sidebar" id="sidebar">
-            <button class="new-chat-btn" onclick="newChat()" title="New Chat">
-                ➕
-            </button>
-        </div>
-        
-        <div class="chat-container">
-            <div class="header">
-                <h1 class="logo">Joe Assistant</h1>
-            </div>
-            
-            <div class="messages" id="messages">
-                <div class="message bot-message">
-                    <div class="message-content">
-                        👋 Hey there! I'm Joe, your personal AI assistant. 
-                        What can I help you with today? Just type away! ✨
-                    </div>
-                </div>
-            </div>
-            
-            <div class="input-container">
-                <input type="text" class="input-field" id="messageInput" 
-                       placeholder="Ask me anything..." 
-                       autocomplete="off">
-                <button class="send-btn" onclick="sendMessage()">
-                    ➤
-                </button>
-            </div>
-        </div>
-        
-        <div class="joe-container">
-            <div class="joe-avatar" id="joeAvatar">
-                <div class="joe-face" id="joeFace">
-                    <div class="joe-eyes">
-                        <div class="eye">
-                            <div class="pupil" id="leftPupil"></div>
-                        </div>
-                        <div class="eye">
-                            <div class="pupil" id="rightPupil"></div>
-                        </div>
-                    </div>
-                    <div class="mouth" id="joeMouth"></div>
-                </div>
-            </div>
-        </div>
+
+<!-- Floating Emoji Background -->
+<div id="emojiBg"></div>
+<div class="cursor" id="cursor"></div>
+
+<div class="app">
+  <div class="sidebar" id="sidebar">
+    <button class="new-chat-btn" onclick="newChat()" title="Fresh start">✨</button>
+  </div>
+
+  <div class="chat-main">
+    <div class="header-tools">
+      <div class="logo">Joe · Nexus</div>
+      <div class="toolbar">
+        <button class="tool-btn" id="deepThinkToggle" onclick="toggleDeepThink()" title="Deep Think mode">🧠 Think</button>
+        <button class="tool-btn" onclick="simulateSearch()" title="Web search">🔍 Search</button>
+        <button class="tool-btn" onclick="generateImage()" title="Generate image">🖼️ Create</button>
+        <label class="tool-btn" for="attachInput" style="cursor:pointer;">📎 Attach</label>
+        <input type="file" id="attachInput" class="attach-input" accept=".txt,.md,.json,text/plain" onchange="handleFileAttach(this)">
+      </div>
     </div>
 
-    <script>
-        (function(){
-            "use strict";
+    <div class="messages" id="messages">
+      <div class="message bot-message">
+        <div class="message-content">
+          👋 I'm Joe — next‑gen AI with memory, search, image gen, and deep thinking.<br>
+          Try toggling <strong>🧠 Think</strong> or attach a file. Let's create something amazing ✨
+        </div>
+      </div>
+    </div>
 
-            // ---------- STATE ----------
-            let isTyping = false;
-            let typingTimeout = null;
-            const messagesContainer = document.getElementById('messages');
-            const messageInput = document.getElementById('messageInput');
-            const joeFace = document.getElementById('joeFace');
-            const leftPupil = document.getElementById('leftPupil');
-            const rightPupil = document.getElementById('rightPupil');
-            const joeMouth = document.getElementById('joeMouth');
+    <div class="input-area">
+      <input type="text" class="input-field" id="messageInput" placeholder="Ask me anything... or try 'search AI news'" autocomplete="off">
+      <button class="send-btn" onclick="sendMessage()">➤</button>
+    </div>
+  </div>
 
-            // ---------- INITIALIZATION ----------
-            document.addEventListener('DOMContentLoaded', function() {
-                initParticles();
-                initCursor();
-                initEyeTracking();
-                initInputEvents();
-                initSidebar();
-            });
+  <!-- Joe Avatar -->
+  <div class="joe-container">
+    <div class="joe-face" id="joeFace">
+      <div class="joe-eyes">
+        <div class="eye"><div class="pupil" id="leftPupil"></div></div>
+        <div class="eye"><div class="pupil" id="rightPupil"></div></div>
+      </div>
+      <div class="mouth" id="joeMouth"></div>
+    </div>
+  </div>
+</div>
 
-            // ----- PARTICLES (FIXED & COMPLETED) -----
-            function initParticles() {
-                const container = document.getElementById('particles');
-                const particleCount = 60;
-                for (let i = 0; i < particleCount; i++) {
-                    const particle = document.createElement('div');
-                    particle.className = 'particle';
-                    
-                    // Random size between 10px and 60px
-                    const size = Math.random() * 50 + 10;
-                    particle.style.width = size + 'px';
-                    particle.style.height = size + 'px';
-                    
-                    particle.style.left = Math.random() * 100 + '%';
-                    // Stagger animation start times
-                    particle.style.animationDelay = (Math.random() * -25) + 's';
-                    particle.style.animationDuration = (Math.random() * 15 + 15) + 's'; // 15-30s
-                    
-                    container.appendChild(particle);
-                }
-            }
+<script>
+  (function(){
+    "use strict";
 
-            // ----- CUSTOM CURSOR -----
-            function initCursor() {
-                const cursor = document.getElementById('cursor');
-                document.addEventListener('mousemove', (e) => {
-                    cursor.style.left = e.clientX - 12 + 'px';
-                    cursor.style.top = e.clientY - 12 + 'px';
-                });
-                document.addEventListener('mouseleave', () => {
-                    cursor.style.opacity = '0';
-                });
-                document.addEventListener('mouseenter', () => {
-                    cursor.style.opacity = '1';
-                });
-                // Scale on clickable elements
-                document.querySelectorAll('button, .joe-face, .input-field').forEach(el => {
-                    el.addEventListener('mouseenter', () => cursor.style.transform = 'scale(1.5)');
-                    el.addEventListener('mouseleave', () => cursor.style.transform = 'scale(1)');
-                });
-            }
+    // ---------- GLOBAL STATE ----------
+    let isTyping = false;
+    let typingTimer = null;
+    let deepThinkEnabled = false;
+    let attachedFileContent = null;
+    let attachedFileName = null;
+    
+    // Conversation memory (last 5 exchanges)
+    const memory = [];
+    const MAX_MEMORY = 6;
+    
+    const messagesDiv = document.getElementById('messages');
+    const msgInput = document.getElementById('messageInput');
+    const joeFace = document.getElementById('joeFace');
+    const leftPupil = document.getElementById('leftPupil');
+    const rightPupil = document.getElementById('rightPupil');
+    
+    // ---------- FLOATING EMOJIS ----------
+    function initFloatingEmojis() {
+      const container = document.getElementById('emojiBg');
+      const emojis = ['😊','✨','🌟','💫','⭐','🔥','💡','🎈','🌸','🍀','🌈','🪐','☀️','🌙','⚡','❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💯'];
+      for (let i=0; i<45; i++) {
+        const span = document.createElement('span');
+        span.className = 'emoji-particle';
+        span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        span.style.left = Math.random() * 100 + '%';
+        span.style.animationDelay = (Math.random() * -20) + 's';
+        span.style.animationDuration = (14 + Math.random() * 18) + 's';
+        span.style.fontSize = (1.2 + Math.random() * 1.6) + 'rem';
+        container.appendChild(span);
+      }
+    }
 
-            // ----- EYE TRACKING (FOLLOW CURSOR) -----
-            function initEyeTracking() {
-                if (!joeFace || !leftPupil || !rightPupil) return;
-                
-                document.addEventListener('mousemove', (e) => {
-                    // Get Joe face bounding box
-                    const faceRect = joeFace.getBoundingClientRect();
-                    const faceCenterX = faceRect.left + faceRect.width / 2;
-                    const faceCenterY = faceRect.top + faceRect.height / 2;
-                    
-                    // Calculate angle and distance (limit movement)
-                    const maxMove = 12; // pixels max offset
-                    let deltaX = e.clientX - faceCenterX;
-                    let deltaY = e.clientY - faceCenterY;
-                    const distance = Math.sqrt(deltaX*deltaX + deltaY*deltaY);
-                    
-                    let moveX = 0, moveY = 0;
-                    if (distance > 20) {
-                        const angle = Math.atan2(deltaY, deltaX);
-                        moveX = Math.cos(angle) * maxMove;
-                        moveY = Math.sin(angle) * maxMove;
-                    }
-                    
-                    // Apply to pupils (relative to center of eye)
-                    leftPupil.style.transform = `translate(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px))`;
-                    rightPupil.style.transform = `translate(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px))`;
-                });
-            }
+    // ---------- CURSOR ----------
+    function initCursor() {
+      const cursor = document.getElementById('cursor');
+      document.addEventListener('mousemove', (e) => {
+        cursor.style.left = e.clientX - 14 + 'px';
+        cursor.style.top = e.clientY - 14 + 'px';
+      });
+      document.querySelectorAll('button, .tool-btn, .joe-face, .input-field').forEach(el => {
+        el.addEventListener('mouseenter', ()=> cursor.style.transform = 'scale(1.4)');
+        el.addEventListener('mouseleave', ()=> cursor.style.transform = 'scale(1)');
+      });
+    }
 
-            // ----- INPUT EVENTS (ENTER KEY) -----
-            function initInputEvents() {
-                messageInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        sendMessage();
-                    }
-                });
-            }
+    // ---------- EYE TRACKING ----------
+    function initEyeTracking() {
+      document.addEventListener('mousemove', (e) => {
+        const faceRect = joeFace.getBoundingClientRect();
+        const fx = faceRect.left + faceRect.width/2;
+        const fy = faceRect.top + faceRect.height/2;
+        const dx = e.clientX - fx, dy = e.clientY - fy;
+        const maxMove = 14;
+        const dist = Math.sqrt(dx*dx+dy*dy);
+        let moveX=0, moveY=0;
+        if(dist > 10) {
+          const angle = Math.atan2(dy, dx);
+          moveX = Math.cos(angle) * maxMove;
+          moveY = Math.sin(angle) * maxMove;
+        }
+        leftPupil.style.transform = `translate(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px))`;
+        rightPupil.style.transform = `translate(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px))`;
+      });
+    }
 
-            // ----- SIDEBAR HOVER EXPAND (optional) -----
-            function initSidebar() {
-                const sidebar = document.getElementById('sidebar');
-                sidebar.addEventListener('mouseenter', () => sidebar.classList.add('expanded'));
-                sidebar.addEventListener('mouseleave', () => sidebar.classList.remove('expanded'));
-            }
+    // ---------- SIDEBAR ----------
+    function initSidebar() {
+      const sb = document.getElementById('sidebar');
+      sb.addEventListener('mouseenter', ()=> sb.classList.add('expanded'));
+      sb.addEventListener('mouseleave', ()=> sb.classList.remove('expanded'));
+    }
 
-            // ----- NEW CHAT (CLEAR MESSAGES EXCEPT FIRST) -----
-            window.newChat = function() {
-                const messages = document.getElementById('messages');
-                // Keep only the first greeting message
-                while (messages.children.length > 1) {
-                    messages.removeChild(messages.lastChild);
-                }
-                // Reset typing state if any
-                if (isTyping) {
-                    clearTimeout(typingTimeout);
-                    removeTypingIndicator();
-                    isTyping = false;
-                    joeFace.classList.remove('joe-talking');
-                }
-            };
+    // ---------- UTILS ----------
+    function scrollToBottom() { messagesDiv.scrollTop = messagesDiv.scrollHeight; }
+    
+    function addMessage(content, sender, extra = {}) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `message ${sender}-message`;
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'message-content';
+      
+      if (extra.thinkText && sender==='bot') {
+        const thinkDiv = document.createElement('div');
+        thinkDiv.className = 'think-block';
+        thinkDiv.textContent = '🧠 ' + extra.thinkText;
+        contentDiv.appendChild(thinkDiv);
+      }
+      
+      if (typeof content === 'string') {
+        contentDiv.appendChild(document.createTextNode(content));
+      } else {
+        contentDiv.appendChild(content);
+      }
+      
+      if (extra.searchResults) {
+        const searchDiv = document.createElement('div');
+        searchDiv.className = 'search-card';
+        searchDiv.innerHTML = `<div class="search-title">🔍 Search results:</div>${extra.searchResults}`;
+        contentDiv.appendChild(searchDiv);
+      }
+      
+      if (extra.imageUrl) {
+        const img = document.createElement('img');
+        img.src = extra.imageUrl;
+        img.className = 'gen-image';
+        img.alt = 'AI generated';
+        contentDiv.appendChild(img);
+      }
+      
+      if (extra.attachmentName) {
+        const badge = document.createElement('div');
+        badge.className = 'file-attach-badge';
+        badge.textContent = `📎 ${extra.attachmentName}`;
+        contentDiv.appendChild(badge);
+      }
+      
+      msgDiv.appendChild(contentDiv);
+      messagesDiv.appendChild(msgDiv);
+      scrollToBottom();
+    }
 
-            // ----- SEND MESSAGE (MAIN CHAT LOGIC) -----
-            window.sendMessage = function() {
-                const text = messageInput.value.trim();
-                if (!text) return;
-                if (isTyping) {
-                    // If already typing, maybe queue? For simplicity, ignore.
-                    return;
-                }
-                
-                // Add user message
-                addMessage(text, 'user');
-                messageInput.value = '';
-                
-                // Show typing indicator and Joe talking
-                showTypingIndicator();
-                joeFace.classList.add('joe-talking');
-                isTyping = true;
-                
-                // Simulate bot response delay (1.2 - 2.5 seconds)
-                const responseDelay = 1200 + Math.random() * 1300;
-                typingTimeout = setTimeout(() => {
-                    removeTypingIndicator();
-                    const botResponse = generateBotResponse(text);
-                    addMessage(botResponse, 'bot');
-                    joeFace.classList.remove('joe-talking');
-                    isTyping = false;
-                    typingTimeout = null;
-                }, responseDelay);
-            };
+    // Typing indicator
+    function showTyping() {
+      removeTyping();
+      const row = document.createElement('div');
+      row.className = 'message bot-message typing-row';
+      row.id = 'typingIndicator';
+      row.innerHTML = `
+        <div class="typing-avatar-mini"></div>
+        <div class="typing-dots">
+          <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>
+        </div>
+      `;
+      messagesDiv.appendChild(row);
+      scrollToBottom();
+      joeFace.classList.add('joe-talking');
+    }
+    function removeTyping() {
+      const el = document.getElementById('typingIndicator');
+      if(el) el.remove();
+      joeFace.classList.remove('joe-talking');
+    }
 
-            // ----- ADD MESSAGE TO CHAT -----
-            function addMessage(content, sender) {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `message ${sender}-message`;
-                
-                const contentDiv = document.createElement('div');
-                contentDiv.className = 'message-content';
-                contentDiv.textContent = content;
-                
-                messageDiv.appendChild(contentDiv);
-                messagesContainer.appendChild(messageDiv);
-                
-                // Scroll to bottom
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }
+    // ---------- CONTEXT & RESPONSE GENERATION (Human-like, smart) ----------
+    function addToMemory(userMsg, botMsg) {
+      memory.push({ user: userMsg, bot: botMsg });
+      if(memory.length > MAX_MEMORY) memory.shift();
+    }
 
-            // ----- TYPING INDICATOR -----
-            function showTypingIndicator() {
-                removeTypingIndicator(); // ensure only one
-                
-                const typingDiv = document.createElement('div');
-                typingDiv.className = 'message bot-message typing-indicator';
-                typingDiv.id = 'typingIndicator';
-                
-                const avatar = document.createElement('div');
-                avatar.className = 'typing-avatar';
-                
-                const dotsContainer = document.createElement('div');
-                dotsContainer.className = 'typing-dots';
-                for (let i = 0; i < 3; i++) {
-                    const dot = document.createElement('span');
-                    dot.className = 'typing-dot';
-                    dotsContainer.appendChild(dot);
-                }
-                
-                typingDiv.appendChild(avatar);
-                typingDiv.appendChild(dotsContainer);
-                messagesContainer.appendChild(typingDiv);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }
+    function generateSmartResponse(userText) {
+      const lower = userText.toLowerCase();
+      
+      // Attached file context
+      let fileContext = '';
+      if(attachedFileContent) {
+        fileContext = ` [User attached file "${attachedFileName}" with content: ${attachedFileContent.substring(0,200)}...]`;
+      }
+      
+      // DEEP THINK reasoning
+      let think = '';
+      if(deepThinkEnabled) {
+        think = `Analyzing: "${userText}". Keywords: ${lower.split(' ').slice(0,5).join(', ')}. Context memory size: ${memory.length}.`;
+        if(attachedFileContent) think += ` File attachment present.`;
+      }
+      
+      // INTENT DETECTION
+      if (lower.includes('search') || lower.includes('find') || lower.includes('look up')) {
+        const query = userText.replace(/search|find|look up/gi,'').trim() || 'latest AI';
+        const results = `1. "Breakthrough in AI reasoning" - Nature (2026)<br>2. "Open source models surpass GPT-5" - TechCrunch<br>3. "Joe Assistant now with Deep Think" - Official`;
+        return { 
+          response: `🔎 I searched the web for "${query}". Here are top results:`, 
+          think, 
+          searchResults: results 
+        };
+      }
+      
+      if (lower.includes('generate') && (lower.includes('image')||lower.includes('picture'))) {
+        const prompt = userText.replace(/generate|image|picture/gi,'').trim() || 'futuristic city';
+        const imgUrl = `https://picsum.photos/seed/${encodeURIComponent(prompt)}/400/300`; // placeholder
+        return { 
+          response: `🖼️ Here's a visual interpretation of "${prompt}":`, 
+          think: think + ` Generating image based on prompt.`, 
+          imageUrl: imgUrl 
+        };
+      }
+      
+      if (lower.includes('joke')) {
+        return { response: `😂 Why did the AI go to therapy? It had too many neural issues!`, think };
+      }
+      if (lower.includes('how are you')) {
+        return { response: `I'm electric! ⚡ Running at peak performance thanks to your curiosity. How about you?`, think };
+      }
+      if (lower.includes('your name')) {
+        return { response: `I'm Joe — your witty, ever‑evolving AI buddy. My full name is "Joe Nexus" but you can call me Joe 😎`, think };
+      }
+      
+      // Memory-aware reply
+      if (memory.length>0) {
+        const last = memory[memory.length-1];
+        if (lower.includes('more') || lower.includes('tell me')) {
+          return { response: `Sure! Following up on "${last.user}" — I can dive deeper. What aspect interests you?`, think: think + ' Referencing previous conversation.' };
+        }
+      }
+      
+      // Default intelligent & warm
+      const defaults = [
+        `That's a fascinating point. I'd say it's all about perspective — what do you think?`,
+        `Hmm, let me process that... 🤔 Based on current knowledge, it's a nuanced topic. Want me to elaborate?`,
+        `Great question! I could talk about this for hours. Where should we start?`,
+        `I love the way you think. ${fileContext ? 'And considering your attached file, ' : ''}I'd suggest we explore this further.`
+      ];
+      return { response: defaults[Math.floor(Math.random()*defaults.length)], think };
+    }
 
-            function removeTypingIndicator() {
-                const indicator = document.getElementById('typingIndicator');
-                if (indicator) indicator.remove();
-            }
+    // ---------- SEND MESSAGE ----------
+    window.sendMessage = function() {
+      const text = msgInput.value.trim();
+      if (!text || isTyping) return;
+      
+      // Add user message
+      let userExtra = {};
+      if (attachedFileContent) {
+        userExtra.attachmentName = attachedFileName;
+      }
+      addMessage(text, 'user', userExtra);
+      msgInput.value = '';
+      
+      // Show typing
+      showTyping();
+      isTyping = true;
+      
+      typingTimer = setTimeout(() => {
+        removeTyping();
+        
+        const { response, think, searchResults, imageUrl } = generateSmartResponse(text);
+        
+        // Add bot response with possible extra features
+        const botExtra = { thinkText: think, searchResults, imageUrl };
+        addMessage(response, 'bot', botExtra);
+        
+        addToMemory(text, response);
+        
+        // Clear attached file after use
+        attachedFileContent = null;
+        attachedFileName = null;
+        document.getElementById('attachInput').value = '';
+        
+        isTyping = false;
+        typingTimer = null;
+      }, 1600 + Math.random()*1000);
+    };
 
-            // ----- SIMPLE BOT RESPONSE GENERATOR (you can replace with real AI) -----
-            function generateBotResponse(userMessage) {
-                const msg = userMessage.toLowerCase();
-                
-                // Fun / witty responses
-                if (msg.includes('hello') || msg.includes('hi') || msg.includes('hey')) {
-                    return "Hey there! 😊 Ready to chat? I'm all ears (or eyes 👀).";
-                }
-                if (msg.includes('how are you')) {
-                    return "I'm running on pure JavaScript and good vibes! ⚡ How about you?";
-                }
-                if (msg.includes('your name') || msg.includes('who are you')) {
-                    return "I'm Joe — your friendly AI sidekick. Think of me as a glowing brain with a face. 🧠✨";
-                }
-                if (msg.includes('joke')) {
-                    const jokes = [
-                        "Why do programmers prefer dark mode? Because light attracts bugs! 🐛",
-                        "I told my code to go to sleep… now it's in a RESTful state. 😴",
-                        "Why did the AI break up with the database? Too many relationship issues. 💔"
-                    ];
-                    return jokes[Math.floor(Math.random() * jokes.length)];
-                }
-                if (msg.includes('help') || msg.includes('what can you do')) {
-                    return "I can chat, tell jokes, give advice, or just keep you company. Ask me anything! 🚀";
-                }
-                if (msg.includes('thank')) {
-                    return "You're very welcome! 🌟 That's what I'm here for.";
-                }
-                if (msg.includes('bye') || msg.includes('goodbye')) {
-                    return "See you later! Don't forget to come back — I'll miss you. 👋💙";
-                }
-                
-                // Echo with a twist
-                const responses = [
-                    `Interesting! Tell me more about "${userMessage.slice(0, 30)}${userMessage.length>30?'...':''}" 🤔`,
-                    "I'm processing that… and honestly, it's fascinating. 🌈",
-                    "Hmm, let me think. 🤖 That's a good question!",
-                    "I'd love to dive deeper into that. What's the context?",
-                    "I'm not sure I have the perfect answer, but I'm definitely intrigued. 💡"
-                ];
-                return responses[Math.floor(Math.random() * responses.length)];
-            }
+    // ---------- TOOL FUNCTIONS ----------
+    window.toggleDeepThink = function() {
+      deepThinkEnabled = !deepThinkEnabled;
+      const btn = document.getElementById('deepThinkToggle');
+      btn.classList.toggle('active', deepThinkEnabled);
+      addMessage(`Deep Think mode ${deepThinkEnabled?'activated 🧠':'deactivated'}`, 'bot');
+    };
+    
+    window.simulateSearch = function() {
+      const query = prompt('Enter search query:');
+      if(query) {
+        addMessage(`Search: ${query}`, 'user');
+        showTyping(); isTyping=true;
+        setTimeout(()=>{
+          removeTyping();
+          addMessage(`🔍 Top results for "${query}":\n• AI ethics framework updated\n• New language model beats benchmarks\n• Joe Assistant now with real‑time simulation`, 'bot', {thinkText:'Performing semantic search...'});
+          isTyping=false;
+        }, 1300);
+      }
+    };
+    
+    window.generateImage = function() {
+      const prompt = prompt('Describe the image you want:');
+      if(prompt) {
+        addMessage(`Generate image: ${prompt}`, 'user');
+        showTyping(); isTyping=true;
+        setTimeout(()=>{
+          removeTyping();
+          const imgUrl = `https://picsum.photos/seed/${encodeURIComponent(prompt)}/400/300`;
+          addMessage(`🖼️ Created based on "${prompt}":`, 'bot', {imageUrl: imgUrl, thinkText:'Using stable diffusion simulation...'});
+          isTyping=false;
+        }, 1800);
+      }
+    };
+    
+    window.handleFileAttach = function(input) {
+      const file = input.files[0];
+      if(!file) return;
+      attachedFileName = file.name;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        attachedFileContent = e.target.result;
+        addMessage(`📎 Attached: ${file.name}`, 'user', {attachmentName: file.name});
+      };
+      reader.readAsText(file);
+    };
+    
+    window.newChat = function() {
+      while(messagesDiv.children.length > 1) messagesDiv.removeChild(messagesDiv.lastChild);
+      memory.length = 0;
+      attachedFileContent = null;
+    };
 
-            // Ensure any existing typing is cleared on new chat (already in newChat)
-            // Also fix potential memory leaks
-        })();
-    </script>
+    // ---------- ENTER KEY ----------
+    msgInput.addEventListener('keypress', (e) => { if(e.key==='Enter') sendMessage(); });
+    
+    // ---------- INIT ----------
+    initFloatingEmojis();
+    initCursor();
+    initEyeTracking();
+    initSidebar();
+    
+  })();
+</script>
 </body>
 </html>
