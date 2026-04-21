@@ -1,422 +1,254 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Joe Assistant</title>
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<style>
-/* [ALL CSS REMAINS THE SAME - NO CHANGES NEEDED] */
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#0a0a0f;color:#e8e8e8;font-family:'Segoe UI',sans-serif;display:flex;height:100vh;overflow:hidden}
-#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
 
-/* [ALL OTHER CSS STYLES UNCHANGED - TOO LONG TO REPEAT] */
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a0f;color:#e8e8e8;font-family:'Segoe UI',sans-serif;height:100vh;overflow:hidden}
+
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0}
+
+#chat{
+position:absolute;
+bottom:80px;
+left:20px;
+right:20px;
+top:120px;
+overflow-y:auto;
+z-index:2;
+}
+
+.message-row{margin-bottom:12px}
+.msg-body{background:#111;padding:10px;border-radius:10px}
+
+#input{
+position:absolute;
+bottom:20px;
+left:20px;
+right:20px;
+padding:12px;
+border:none;
+border-radius:10px;
+background:#111;
+color:white;
+resize:none;
+z-index:2;
+}
+
+#joe-face{
+position:absolute;
+top:20px;
+left:20px;
+width:80px;
+cursor:pointer;
+z-index:2;
+}
+
+#joe-bubble{
+position:absolute;
+top:100px;
+left:20px;
+background:#111;
+padding:10px;
+border-radius:10px;
+display:none;
+z-index:2;
+}
+#joe-bubble.show{display:block}
 </style>
 </head>
+
 <body>
-<!-- [ALL HTML STRUCTURE REMAINS THE SAME] -->
+
 <canvas id="bg-canvas"></canvas>
 
-<!-- JOE FACE -->
 <div id="joe-face" onclick="toggleBubble()">
-<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-<defs>
-<radialGradient id="hg" cx="50%" cy="35%" r="65%">
-<stop offset="0%" stop-color="#16162a"/>
-<stop offset="100%" stop-color="#07070f"/>
-</radialGradient>
-</defs>
-<circle cx="50" cy="50" r="46" fill="url(#hg)" stroke="#00aaff" stroke-width="1.5"/>
-<circle cx="34" cy="42" r="12" fill="#0d0d1e" stroke="#00aaff" stroke-width="1.2"/>
-<circle cx="66" cy="42" r="12" fill="#0d0d1e" stroke="#00aaff" stroke-width="1.2"/>
+<svg viewBox="0 0 100 100">
+<circle cx="50" cy="50" r="46" fill="#0d0d1e" stroke="#00aaff"/>
 <circle id="pupil-left" cx="34" cy="42" r="6" fill="#00aaff"/>
-<circle id="shine-left" cx="37" cy="39" r="2" fill="white" opacity="0.9"/>
 <circle id="pupil-right" cx="66" cy="42" r="6" fill="#00aaff"/>
-<circle id="shine-right" cx="69" cy="39" r="2" fill="white" opacity="0.9"/>
-<path id="brow-left" d="M 24 30 Q 34 25 44 30" stroke="#00aaff" stroke-width="2" fill="none" stroke-linecap="round"/>
-<path id="brow-right" d="M 56 30 Q 66 25 76 30" stroke="#00aaff" stroke-width="2" fill="none" stroke-linecap="round"/>
-<path id="joe-mouth" d="M 34 67 Q 50 80 66 67" stroke="#19c37d" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-<circle cx="22" cy="60" r="8" fill="rgba(0,170,255,0.04)"/>
-<circle cx="78" cy="60" r="8" fill="rgba(0,170,255,0.04)"/>
+<path id="joe-mouth" d="M 34 67 Q 50 80 66 67" stroke="#19c37d" stroke-width="2"/>
 </svg>
 </div>
-<div id="joe-bubble">⚡ I'm Joe. Alive and ready.</div>
 
-<!-- [ALL OTHER HTML ELEMENTS UNCHANGED] -->
+<div id="joe-bubble">⚡ I'm Joe.</div>
+
+<div id="chat"></div>
+
+<textarea id="input" placeholder="Type a message..."></textarea>
 
 <script>
-// FIXED JAVASCRIPT - COMPLETE WORKING VERSION
 
-// ============================================================
-// GLOBAL STATE
-// ============================================================
+// ================= SAFE STORAGE =================
+function safeLoad(key, fallback){
+  try{
+    const data = JSON.parse(localStorage.getItem(key));
+    return data || fallback;
+  }catch{
+    return fallback;
+  }
+}
+
+let chats = safeLoad('joe-chats', [
+  {id:'chat-1',messages:[]}
+]);
+
 let currentChatId = 'chat-1';
-let chats = JSON.parse(localStorage.getItem('joe-chats')) || [{id: 'chat-1', title: 'New Chat', messages: []}];
 let isTyping = false;
-let attachment = null;
-let mediaRecorder = null;
-let audioChunks = [];
 
-// ============================================================
-// BACKGROUND PARTICLES - FIXED
-// ============================================================
-const bgCanvas = document.getElementById('bg-canvas');
-const bgCtx = bgCanvas.getContext('2d');
-let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+// ================= BACKGROUND =================
+const c = document.getElementById('bg-canvas');
+const ctx = c.getContext('2d');
 
-function resizeBg() {
-  bgCanvas.width = window.innerWidth;
-  bgCanvas.height = window.innerHeight;
+function resize(){
+  c.width = innerWidth;
+  c.height = innerHeight;
 }
-resizeBg();
-window.addEventListener('resize', resizeBg);
-document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+resize();
+addEventListener('resize',resize);
 
-const PCOUNT = 85;
-const pts = [];
+let particles = Array.from({length:70},()=>({
+  x:Math.random()*innerWidth,
+  y:Math.random()*innerHeight,
+  vx:(Math.random()-0.5)*0.5,
+  vy:(Math.random()-0.5)*0.5
+}));
 
-class Pt {
-  constructor() {
-    this.x = Math.random() * bgCanvas.width;
-    this.y = Math.random() * bgCanvas.height;
-    this.vx = (Math.random() - 0.5) * 0.45;
-    this.vy = (Math.random() - 0.5) * 0.45;
-    this.r = Math.random() * 1.6 + 0.4;
-    this.op = Math.random() * 0.45 + 0.1;
-    this.c = Math.random() > 0.5 ? '0,170,255' : '25,195,125';
-  }
-  update() {
-    this.x += this.vx;
-    this.y += this.vy;
-    if (this.x < 0 || this.x > bgCanvas.width) this.vx *= -1;
-    if (this.y < 0 || this.y > bgCanvas.height) this.vy *= -1;
-  }
-  draw() {
-    bgCtx.beginPath();
-    bgCtx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-    bgCtx.fillStyle = `rgba(${this.c},${this.op})`;
-    bgCtx.fill();
-  }
+function draw(){
+  ctx.clearRect(0,0,c.width,c.height);
+  particles.forEach(p=>{
+    p.x+=p.vx;
+    p.y+=p.vy;
+    if(p.x<0||p.x>c.width)p.vx*=-1;
+    if(p.y<0||p.y>c.height)p.vy*=-1;
+
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,2,0,Math.PI*2);
+    ctx.fillStyle="#00aaff";
+    ctx.fill();
+  });
+  requestAnimationFrame(draw);
 }
+draw();
 
-for (let i = 0; i < PCOUNT; i++) pts.push(new Pt());
+// ================= EYES =================
+const pupilL = document.getElementById('pupil-left');
+const pupilR = document.getElementById('pupil-right');
 
-function drawBg() {
-  bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
-  const g = bgCtx.createRadialGradient(mx, my, 0, mx, my, 500);
-  g.addColorStop(0, 'rgba(0,60,100,0.07)');
-  g.addColorStop(1, 'rgba(0,0,0,0)');
-  bgCtx.fillStyle = g;
-  bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+function animateEyes(){
+  const dx = (Math.random()-0.5)*4;
+  const dy = (Math.random()-0.5)*4;
 
-  for (let i = 0; i < pts.length; i++) {
-    for (let j = i + 1; j < pts.length; j++) {
-      const dx = pts[i].x - pts[j].x;
-      const dy = pts[i].y - pts[j].y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < 130) {
-        bgCtx.beginPath();
-        bgCtx.moveTo(pts[i].x, pts[i].y);
-        bgCtx.lineTo(pts[j].x, pts[j].y);
-        bgCtx.strokeStyle = `rgba(0,170,255,${0.12 * (1 - dist / 130)})`;
-        bgCtx.lineWidth = 0.5;
-        bgCtx.stroke();
-      }
-    }
-  }
-  pts.forEach(p => { p.update(); p.draw(); });
-  requestAnimationFrame(drawBg);
+  pupilL.setAttribute('cx',34+dx);
+  pupilL.setAttribute('cy',42+dy);
+  pupilR.setAttribute('cx',66+dx);
+  pupilR.setAttribute('cy',42+dy);
+
+  requestAnimationFrame(animateEyes);
 }
-drawBg();
+animateEyes();
 
-// ============================================================
-// JOE FACE — EYE TRACKING - FIXED
-// ============================================================
-const joeEl = document.getElementById('joe-face');
-const pupilLeft = document.getElementById('pupil-left');
-const pupilRight = document.getElementById('pupil-right');
-const shineLeft = document.getElementById('shine-left');
-const shineRight = document.getElementById('shine-right');
-const joeBubble = document.getElementById('joe-bubble');
-
-function movePupils() {
-  const rect = joeEl.getBoundingClientRect();
-  const cx = rect.left + rect.width / 2;
-  const cy = rect.top + rect.height / 2;
-  
-  const dx = (mx - cx) / 20;
-  const dy = (my - cy) / 20;
-  
-  pupilLeft.setAttribute('cx', 34 + Math.max(-4, Math.min(4, dx)));
-  pupilLeft.setAttribute('cy', 42 + Math.max(-3, Math.min(3, dy)));
-  shineLeft.setAttribute('cx', 37 + Math.max(-4, Math.min(4, dx)));
-  shineLeft.setAttribute('cy', 39 + Math.max(-3, Math.min(3, dy)));
-  
-  pupilRight.setAttribute('cx', 66 + Math.max(-4, Math.min(4, dx)));
-  pupilRight.setAttribute('cy', 42 + Math.max(-3, Math.min(3, dy)));
-  shineRight.setAttribute('cx', 69 + Math.max(-4, Math.min(4, dx)));
-  shineRight.setAttribute('cy', 39 + Math.max(-3, Math.min(3, dy)));
+// ================= MARKDOWN SAFE =================
+function safeMarkdown(text){
+  const raw = marked.parse(text);
+  const div = document.createElement('div');
+  div.innerHTML = raw;
+  div.querySelectorAll('script').forEach(e=>e.remove());
+  return div.innerHTML;
 }
 
-setInterval(movePupils, 50);
+// ================= CHAT =================
+function render(){
+  const chat = document.getElementById('chat');
+  const data = chats.find(c=>c.id===currentChatId);
 
-// ============================================================
-// CHAT FUNCTIONS
-// ============================================================
-function saveChats() {
-  localStorage.setItem('joe-chats', JSON.stringify(chats));
-}
-
-function renderChatHistory() {
-  const history = document.getElementById('chat-history');
-  history.innerHTML = chats.map(chat => `
-    <div class="sidebar-item ${chat.id === currentChatId ? 'active' : ''}" onclick="loadChat('${chat.id}')">
-      ${chat.title}
+  chat.innerHTML = data.messages.map(m=>`
+    <div class="message-row">
+      <div class="msg-body">${safeMarkdown(m.content)}</div>
     </div>
   `).join('');
+
+  requestAnimationFrame(()=>{
+    chat.scrollTop = chat.scrollHeight;
+  });
 }
 
-function loadChat(chatId) {
-  currentChatId = chatId;
-  const chat = chats.find(c => c.id === chatId);
-  renderMessages(chat.messages);
-  renderChatHistory();
-  document.getElementById('welcome').style.display = 'none';
+function save(){
+  localStorage.setItem('joe-chats',JSON.stringify(chats));
 }
 
-function newChat() {
-  const id = 'chat-' + Date.now();
-  chats.unshift({id, title: 'New Chat', messages: []});
-  currentChatId = id;
-  saveChats();
-  renderChatHistory();
-  document.getElementById('welcome').style.display = 'none';
-  document.getElementById('input').focus();
-}
-
-function renderMessages(messages) {
-  const chat = document.getElementById('chat');
-  chat.innerHTML = messages.map(msg => createMessageHTML(msg)).join('') + (isTyping ? createTypingIndicator() : '');
-  chat.scrollTop = chat.scrollHeight;
-}
-
-function createMessageHTML(msg) {
-  const isUser = msg.role === 'user';
-  const avatarClass = isUser ? 'user-av' : 'joe-av';
-  const rowClass = isUser ? 'user-row' : 'joe-row';
-  
-  let content = marked.parse(msg.content);
-  if (msg.image) {
-    content = `<img src="${msg.image}" style="max-width:100%;border-radius:8px;margin:8px 0;">` + content;
-  }
-  
-  return `
-    <div class="message-row ${rowClass}">
-      <div class="message-inner">
-        <div class="msg-avatar ${avatarClass}">${isUser ? 'U' : 'J'}</div>
-        <div class="msg-content">
-          <div class="msg-name">${isUser ? 'You' : 'Joe'}</div>
-          <div class="msg-body">${content}</div>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-function createTypingIndicator() {
-  return `
-    <div class="message-row joe-row">
-      <div class="message-inner">
-        <div class="msg-avatar joe-av">J</div>
-        <div class="msg-content">
-          <div class="msg-name">Joe</div>
-          <div class="typing">
-            <span></span><span></span><span></span>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-// ============================================================
-// MESSAGE SENDING
-// ============================================================
-async function sendMessage() {
+// ================= SEND =================
+async function sendMessage(){
   const input = document.getElementById('input');
   const text = input.value.trim();
-  
-  if (!text && !attachment) return;
-  
-  const chat = chats.find(c => c.id === currentChatId);
-  chat.messages.push({role: 'user', content: text || '📎 File attached', image: attachment, timestamp: Date.now()});
-  
-  input.value = '';
-  attachment = null;
-  document.getElementById('attachment-bar').classList.remove('show');
-  renderMessages(chat.messages);
-  saveChats();
-  
-  // Simulate typing
-  setJoeTyping(true);
-  
-  // Simulate Joe response
-  setTimeout(() => {
-    setJoeTyping(false);
-    chat.messages.push({
-      role: 'assistant', 
-      content: `Thanks for your message${text ? ` "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"` : ''}! I'm processing this right now. Joe Assistant is analyzing your request with superintelligence. Response coming in moments...`,
-      timestamp: Date.now()
-    });
-    renderMessages(chat.messages);
-    saveChats();
-  }, 1500 + Math.random() * 2000);
+  if(!text)return;
+
+  const chat = chats.find(c=>c.id===currentChatId);
+
+  chat.messages.push({content:text});
+  input.value="";
+  render();
+  save();
+
+  setTyping(true);
+
+  await new Promise(r=>setTimeout(r,1000));
+
+  const replies=[
+    "Interesting… 👀",
+    "I see your thinking.",
+    "Processing that ⚡",
+    "That’s actually smart.",
+    "Tell me more."
+  ];
+
+  chat.messages.push({
+    content:replies[Math.floor(Math.random()*replies.length)]
+  });
+
+  setTyping(false);
+  render();
+  save();
 }
 
-document.getElementById('input').addEventListener('keydown', e => {
-  if (e.key === 'Enter' && !e.shiftKey) {
+// ================= TYPING =================
+function setTyping(t){
+  isTyping = t;
+
+  document.getElementById('joe-mouth').setAttribute(
+    'd',
+    t ? "M 34 67 Q 50 60 66 67"
+      : "M 34 67 Q 50 80 66 67"
+  );
+}
+
+// ================= INPUT =================
+document.getElementById('input').addEventListener('keydown',e=>{
+  if(e.key==="Enter"&&!e.shiftKey){
     e.preventDefault();
     sendMessage();
   }
 });
 
-function setJoeTyping(typing) {
-  isTyping = typing;
-  const chat = document.getElementById('chat');
-  joeEl.classList.toggle('talking', typing);
-  renderMessages(chats.find(c => c.id === currentChatId).messages);
+// ================= BUBBLE =================
+function toggleBubble(){
+  const b = document.getElementById('joe-bubble');
+  b.classList.toggle('show');
+  setTimeout(()=>b.classList.remove('show'),2000);
 }
 
-// ============================================================
-// JOE BUBBLE
-// ============================================================
-let bubbleTimeout;
-function toggleBubble() {
-  const bubble = document.getElementById('joe-bubble');
-  bubble.classList.toggle('show');
-  if (bubbleTimeout) clearTimeout(bubbleTimeout);
-  bubbleTimeout = setTimeout(() => bubble.classList.remove('show'), 3000);
-}
-
-// ============================================================
-// FILE HANDLING
-// ============================================================
-function handleFile(event) {
-  const file = event.target.files[0];
-  if (file) {
-    attachment = URL.createObjectURL(file);
-    document.getElementById('attachment-bar').classList.add('show');
-    document.getElementById('att-name').textContent = file.name;
-  }
-}
-
-function clearAttachment() {
-  attachment = null;
-  document.getElementById('attachment-bar').classList.remove('show');
-  document.getElementById('file-input').value = '';
-}
-
-// ============================================================
-// CAMERA
-// ============================================================
-let stream = null;
-async function openCamera() {
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: 'user'}});
-    document.getElementById('camera-modal').classList.add('show');
-    document.getElementById('camera-video').srcObject = stream;
-  } catch (e) {
-    alert('Camera access denied');
-  }
-}
-
-function closeCamera() {
-  document.getElementById('camera-modal').classList.remove('show');
-  if (stream) {
-    stream.getTracks().forEach(track => track.stop());
-    stream = null;
-  }
-}
-
-function capturePhoto() {
-  const video = document.getElementById('camera-video');
-  const canvas = document.getElementById('camera-canvas');
-  const ctx = canvas.getContext('2d');
-  
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  attachment = canvas.toDataURL('image/jpeg', 0.8);
-  
-  closeCamera();
-  document.getElementById('attachment-bar').classList.add('show');
-  document.getElementById('att-name').textContent = '📷 Photo';
-}
-
-// ============================================================
-// VOICE
-// ============================================================
-let isRecording = false;
-async function toggleMic() {
-  const btn = document.getElementById('mic-btn');
-  
-  if (!isRecording) {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({audio: true});
-      mediaRecorder = new MediaRecorder(stream);
-      audioChunks = [];
-      
-      mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-      mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunks, {type: 'audio/wav'});
-        const audioUrl = URL.createObjectURL(audioBlob);
-        attachment = audioUrl;
-        document.getElementById('attachment-bar').classList.add('show');
-        document.getElementById('att-name').textContent = '🎙️ Voice message';
-        stream.getTracks().forEach(track => track.stop());
-      };
-      
-      mediaRecorder.start();
-      isRecording = true;
-      btn.classList.add('recording');
-      btn.textContent = '🔴 Stop';
-      document.getElementById('mic-bar').classList.add('show');
-      
-      setTimeout(() => {
-        if (isRecording) mediaRecorder.stop();
-      }, 10000);
-      
-    } catch (e) {
-      alert('Microphone access denied');
-    }
-  } else {
-    mediaRecorder.stop();
-    isRecording = false;
-    btn.classList.remove('recording');
-    btn.textContent = '🎙️ Voice';
-    document.getElementById('mic-bar').classList.remove('show');
-  }
-}
-
-// ============================================================
-// SUGGESTIONS & INIT
-// ============================================================
-function suggest(text) {
-  document.getElementById('input').value = text;
-  setTimeout(sendMessage, 100);
-}
-
-// Initialize
-renderChatHistory();
-loadChat(currentChatId);
-
-// Auto-resize textarea
-document.getElementById('input').addEventListener('input', function() {
-  this.style.height = 'auto';
-  this.style.height = Math.min(this.scrollHeight, 180) + 'px';
-});
+// INIT
+render();
 
 </script>
 </body>
 </html>
+```
