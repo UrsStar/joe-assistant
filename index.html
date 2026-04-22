@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Joe AI</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Joe AI</title>
 
 <style>
 body{
@@ -14,6 +14,7 @@ body{
   display:flex;
   flex-direction:column;
   height:100vh;
+  transition:0.3s;
 }
 
 .messages{
@@ -24,20 +25,13 @@ body{
 
 .message{
   margin:10px 0;
-  max-width:70%;
-  padding:12px 16px;
+  padding:12px;
   border-radius:15px;
+  max-width:70%;
 }
 
-.user{
-  background:#3b82f6;
-  align-self:flex-end;
-}
-
-.bot{
-  background:#1e293b;
-  align-self:flex-start;
-}
+.user{background:#3b82f6;margin-left:auto;}
+.bot{background:#1e293b;}
 
 .input-area{
   display:flex;
@@ -48,14 +42,14 @@ body{
 input{
   flex:1;
   padding:12px;
-  border:none;
   border-radius:20px;
+  border:none;
   outline:none;
 }
 
 button{
   margin-left:10px;
-  padding:12px 18px;
+  padding:10px;
   border:none;
   border-radius:20px;
   background:#3b82f6;
@@ -72,84 +66,128 @@ button{
 <div class="input-area">
   <input id="input" placeholder="Talk to Joe...">
   <button onclick="sendMessage()">Send</button>
+  <button onclick="startVoice()">🎤</button>
 </div>
 
 <script>
-let memory = [];
+let memory = JSON.parse(localStorage.getItem("memory")) || [];
 
-function addMessage(text, type){
-  const div = document.createElement("div");
-  div.className = "message " + type;
-  div.textContent = text;
+function addMessage(text,type){
+  const div=document.createElement("div");
+  div.className="message "+type;
+  div.textContent=text;
   document.getElementById("messages").appendChild(div);
   scroll();
 }
 
 function scroll(){
-  const m = document.getElementById("messages");
-  m.scrollTop = m.scrollHeight;
+  const m=document.getElementById("messages");
+  m.scrollTop=m.scrollHeight;
 }
 
-function showTyping(){
-  const div = document.createElement("div");
-  div.className = "message bot";
-  div.id = "typing";
-  div.textContent = "Typing...";
-  document.getElementById("messages").appendChild(div);
-  scroll();
+function saveMemory(){
+  localStorage.setItem("memory", JSON.stringify(memory));
 }
 
-function removeTyping(){
-  const t = document.getElementById("typing");
-  if(t) t.remove();
+function speak(text){
+  const u=new SpeechSynthesisUtterance(text);
+  speechSynthesis.speak(u);
 }
 
-async function generateResponse(userText){
-  const messages = memory.flatMap(m => ([
-    { role:"user", content:m.user },
-    { role:"assistant", content:m.bot }
-  ]));
-
-  messages.push({ role:"user", content:userText });
-
-  const res = await fetch("http://localhost:3000/chat", {
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({ messages })
-  });
-
-  const data = await res.json();
-  return data.choices[0].message.content;
-}
-
-async function sendMessage(){
-  const input = document.getElementById("input");
-  const text = input.value.trim();
-  if(!text) return;
-
-  addMessage(text, "user");
-  input.value = "";
-
-  showTyping();
-
-  try{
-    const reply = await generateResponse(text);
-
-    removeTyping();
-    addMessage(reply, "bot");
-
-    memory.push({ user:text, bot:reply });
-    if(memory.length > 10) memory.shift();
-
-  }catch{
-    removeTyping();
-    addMessage("⚠️ Error connecting to AI", "bot");
+function react(text){
+  if(text.includes("good")||text.includes("great")){
+    document.body.style.background="#064e3b";
+  }else if(text.includes("bad")||text.includes("error")){
+    document.body.style.background="#7f1d1d";
+  }else{
+    document.body.style.background="#0f172a";
   }
 }
 
-document.getElementById("input").addEventListener("keydown", e=>{
+/* 🧠 FAKE INTELLIGENCE ENGINE */
+function generateResponse(input){
+  const text=input.toLowerCase();
+
+  if(text.includes("hello")||text.includes("hi")){
+    return "Hey 👋 I'm Joe. Talk to me.";
+  }
+
+  if(text.includes("who are you")){
+    return "I'm Joe, your assistant. Not fully human… but close enough to talk back 😄";
+  }
+
+  if(text.includes("how are you")){
+    return "Running smoothly. You?";
+  }
+
+  if(text.includes("help")){
+    return "I can chat, remember things, and even talk. Try asking something deeper.";
+  }
+
+  if(text.includes("remember")){
+    return "I remember our conversation here. You matter in my memory now.";
+  }
+
+  if(text.includes("search")){
+    return "🌐 If I had internet access, I'd search that instantly. Try connecting me to a backend 😉";
+  }
+
+  if(text.includes("love")){
+    return "That's a big word. But connection matters. What's on your mind?";
+  }
+
+  return "Interesting... tell me more.";
+}
+
+/* SEND */
+function sendMessage(){
+  const input=document.getElementById("input");
+  const text=input.value.trim();
+  if(!text) return;
+
+  addMessage(text,"user");
+  input.value="";
+
+  setTimeout(()=>{
+    const reply=generateResponse(text);
+
+    addMessage(reply,"bot");
+    speak(reply);
+    react(reply);
+
+    memory.push({user:text,bot:reply});
+    if(memory.length>20) memory.shift();
+    saveMemory();
+
+  },500);
+}
+
+/* 🎤 VOICE */
+const recog = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+recog.lang="en-US";
+
+function startVoice(){
+  recog.start();
+}
+
+recog.onresult=function(e){
+  const text=e.results[0][0].transcript;
+  document.getElementById("input").value=text;
+  sendMessage();
+};
+
+/* ENTER KEY */
+document.getElementById("input").addEventListener("keydown",e=>{
   if(e.key==="Enter") sendMessage();
 });
+
+/* LOAD MEMORY */
+window.onload=()=>{
+  memory.forEach(m=>{
+    addMessage(m.user,"user");
+    addMessage(m.bot,"bot");
+  });
+};
 </script>
 
 </body>
