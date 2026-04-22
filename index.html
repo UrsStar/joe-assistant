@@ -71,7 +71,9 @@ button{
 
 <script>
 let memory = JSON.parse(localStorage.getItem("memory")) || [];
+let isListening = false;
 
+/* ---------- UI ---------- */
 function addMessage(text,type){
   const div=document.createElement("div");
   div.className="message "+type;
@@ -89,58 +91,44 @@ function saveMemory(){
   localStorage.setItem("memory", JSON.stringify(memory));
 }
 
+/* ---------- VOICE OUTPUT ---------- */
 function speak(text){
   const u=new SpeechSynthesisUtterance(text);
   speechSynthesis.speak(u);
 }
 
+/* ---------- REACTION ---------- */
 function react(text){
   if(text.includes("good")||text.includes("great")){
     document.body.style.background="#064e3b";
-  }else if(text.includes("bad")||text.includes("error")){
+  }else if(text.includes("error")||text.includes("bad")){
     document.body.style.background="#7f1d1d";
   }else{
     document.body.style.background="#0f172a";
   }
 }
 
-/* 🧠 FAKE INTELLIGENCE ENGINE */
-function generateResponse(input){
-  const text=input.toLowerCase();
+/* ---------- REAL AI ---------- */
+async function generateResponse(userText){
+  const messages = memory.flatMap(m => ([
+    { role:"user", content:m.user },
+    { role:"assistant", content:m.bot }
+  ]));
 
-  if(text.includes("hello")||text.includes("hi")){
-    return "Hey 👋 I'm Joe. Talk to me.";
-  }
+  messages.push({ role:"user", content:userText });
 
-  if(text.includes("who are you")){
-    return "I'm Joe, your assistant. Not fully human… but close enough to talk back 😄";
-  }
+  const res = await fetch("https://YOUR-VERCEL-APP.vercel.app/api/chat", {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ messages })
+  });
 
-  if(text.includes("how are you")){
-    return "Running smoothly. You?";
-  }
-
-  if(text.includes("help")){
-    return "I can chat, remember things, and even talk. Try asking something deeper.";
-  }
-
-  if(text.includes("remember")){
-    return "I remember our conversation here. You matter in my memory now.";
-  }
-
-  if(text.includes("search")){
-    return "🌐 If I had internet access, I'd search that instantly. Try connecting me to a backend 😉";
-  }
-
-  if(text.includes("love")){
-    return "That's a big word. But connection matters. What's on your mind?";
-  }
-
-  return "Interesting... tell me more.";
+  const data = await res.json();
+  return data.choices[0].message.content;
 }
 
-/* SEND */
-function sendMessage(){
+/* ---------- SEND ---------- */
+async function sendMessage(){
   const input=document.getElementById("input");
   const text=input.value.trim();
   if(!text) return;
@@ -148,8 +136,12 @@ function sendMessage(){
   addMessage(text,"user");
   input.value="";
 
-  setTimeout(()=>{
-    const reply=generateResponse(text);
+  addMessage("Typing...","bot");
+
+  try{
+    const reply = await generateResponse(text);
+
+    document.getElementById("messages").lastChild.remove();
 
     addMessage(reply,"bot");
     speak(reply);
@@ -159,14 +151,19 @@ function sendMessage(){
     if(memory.length>20) memory.shift();
     saveMemory();
 
-  },500);
+  }catch{
+    document.getElementById("messages").lastChild.remove();
+    addMessage("⚠️ AI connection error","bot");
+  }
 }
 
-/* 🎤 VOICE */
+/* ---------- VOICE INPUT (FIXED) ---------- */
 const recog = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
 recog.lang="en-US";
 
 function startVoice(){
+  if(isListening) return;
+  isListening = true;
   recog.start();
 }
 
@@ -176,12 +173,20 @@ recog.onresult=function(e){
   sendMessage();
 };
 
-/* ENTER KEY */
+recog.onend=function(){
+  isListening=false;
+};
+
+recog.onerror=function(){
+  isListening=false;
+};
+
+/* ---------- ENTER KEY ---------- */
 document.getElementById("input").addEventListener("keydown",e=>{
   if(e.key==="Enter") sendMessage();
 });
 
-/* LOAD MEMORY */
+/* ---------- LOAD MEMORY ---------- */
 window.onload=()=>{
   memory.forEach(m=>{
     addMessage(m.user,"user");
