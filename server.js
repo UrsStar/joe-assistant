@@ -6,7 +6,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const API_KEY = "YOUR_OPENAI_API_KEY"; // 🔑 put your key here
+// 🔑 PUT YOUR OPENAI API KEY HERE
+const API_KEY = "YOUR_OPENAI_API_KEY";
 
 app.post("/chat", async (req, res) => {
   try {
@@ -23,7 +24,7 @@ app.post("/chat", async (req, res) => {
         messages: [
           {
             role: "system",
-            content: "You are Joe, a smart, thoughtful AI assistant. You explain clearly, think deeply, and talk naturally like a real person."
+            content: "You are Joe, a smart, natural AI assistant. You talk like a real human, think deeply, and explain clearly."
           },
           ...messages
         ]
@@ -34,10 +35,11 @@ app.post("/chat", async (req, res) => {
     res.json(data);
 
   } catch (err) {
-    res.status(500).json({ error: "Something went wrong" });
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
   }
 });
 
 app.listen(3000, () => {
-  console.log("🚀 Server running on http://localhost:3000");
+  console.log("🚀 Running on http://localhost:3000");
 });
