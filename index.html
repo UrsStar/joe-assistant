@@ -2,172 +2,101 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<title>Joe AI</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Joe · Intelligent Assistant</title>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
-*{margin:0;padding:0;box-sizing:border-box;}
 body{
-  font-family:'Inter',sans-serif;
+  margin:0;
+  font-family:sans-serif;
+  background:#0f172a;
+  color:white;
+  display:flex;
+  flex-direction:column;
   height:100vh;
-  overflow:hidden;
-  background: radial-gradient(circle at 20% 20%, #0c0c1e, #020205);
-  color:#eef2ff;
 }
-
-/* safer cursor */
-.cursor{
-  position:fixed;
-  width:24px;height:24px;
-  background: radial-gradient(circle,#a0d0ff,#3a7ca5);
-  border-radius:50%;
-  pointer-events:none;
-  z-index:9999;
-  transition:transform .1s;
-}
-
-/* layout */
-.app{display:flex;height:100vh;}
-.sidebar{
-  width:80px;
-  background:rgba(10,12,24,.9);
-  display:flex;flex-direction:column;align-items:center;
-  padding:20px 0;
-  transition:.3s;
-}
-.sidebar.expanded{width:220px;}
-
-.new-chat-btn{
-  width:50px;height:50px;border-radius:50%;
-  border:none;cursor:pointer;
-  background:#6366f1;color:#fff;font-size:20px;
-}
-
-.chat-main{flex:1;display:flex;flex-direction:column;padding:20px;}
 
 .messages{
-  flex:1;overflow-y:auto;
+  flex:1;
+  overflow-y:auto;
+  padding:20px;
 }
 
-.message{margin:15px 0;display:flex;}
-.user-message{justify-content:flex-end;}
-.bot-message{justify-content:flex-start;}
-
-.message-content{
-  max-width:75%;
-  padding:15px 20px;
-  border-radius:20px;
+.message{
+  margin:10px 0;
+  max-width:70%;
+  padding:12px 16px;
+  border-radius:15px;
 }
 
-.user-message .message-content{
-  background:#6366f1;color:#fff;
+.user{
+  background:#3b82f6;
+  align-self:flex-end;
 }
-.bot-message .message-content{
+
+.bot{
   background:#1e293b;
+  align-self:flex-start;
 }
 
-.input-area{display:flex;gap:10px;margin-top:10px;}
-.input-field{
-  flex:1;padding:15px;border-radius:30px;
-  border:none;outline:none;
-}
-.send-btn{
-  width:55px;border:none;border-radius:50%;
-  background:#3b82f6;color:white;cursor:pointer;
+.input-area{
+  display:flex;
+  padding:10px;
+  background:#020617;
 }
 
-/* typing */
-.typing-dots span{
-  display:inline-block;width:6px;height:6px;
-  background:#aaa;border-radius:50%;
-  animation:blink 1.2s infinite;
+input{
+  flex:1;
+  padding:12px;
+  border:none;
+  border-radius:20px;
+  outline:none;
 }
-.typing-dots span:nth-child(2){animation-delay:.2s;}
-.typing-dots span:nth-child(3){animation-delay:.4s;}
 
-@keyframes blink{
-  0%,100%{opacity:.3;}
-  50%{opacity:1;}
+button{
+  margin-left:10px;
+  padding:12px 18px;
+  border:none;
+  border-radius:20px;
+  background:#3b82f6;
+  color:white;
+  cursor:pointer;
 }
 </style>
 </head>
 
 <body>
 
-<div class="cursor" id="cursor"></div>
+<div class="messages" id="messages"></div>
 
-<div class="app">
-  <div class="sidebar" id="sidebar">
-    <button class="new-chat-btn" onclick="newChat()">+</button>
-  </div>
-
-  <div class="chat-main">
-    <div class="messages" id="messages">
-      <div class="message bot-message">
-        <div class="message-content">
-          I'm Joe. Ask me anything.
-        </div>
-      </div>
-    </div>
-
-    <div class="input-area">
-      <input id="messageInput" class="input-field" placeholder="Type...">
-      <button class="send-btn" onclick="sendMessage()">➤</button>
-    </div>
-  </div>
+<div class="input-area">
+  <input id="input" placeholder="Talk to Joe...">
+  <button onclick="sendMessage()">Send</button>
 </div>
 
 <script>
-"use strict";
-
-/* ---------- STATE ---------- */
-let isTyping = false;
 let memory = [];
-const MAX_MEMORY = 10;
 
-/* ---------- ELEMENTS ---------- */
-const messagesDiv = document.getElementById('messages');
-const input = document.getElementById('messageInput');
-const cursor = document.getElementById('cursor');
-
-/* ---------- SAFE ADD MESSAGE ---------- */
-function addMessage(text, sender){
-  const msg = document.createElement('div');
-  msg.className = "message " + sender + "-message";
-
-  const content = document.createElement('div');
-  content.className = "message-content";
-
-  // SAFE TEXT (no innerHTML injection)
-  content.textContent = text;
-
-  msg.appendChild(content);
-  messagesDiv.appendChild(msg);
-  scrollToBottom();
+function addMessage(text, type){
+  const div = document.createElement("div");
+  div.className = "message " + type;
+  div.textContent = text;
+  document.getElementById("messages").appendChild(div);
+  scroll();
 }
 
-/* ---------- SCROLL FIX ---------- */
-function scrollToBottom(){
-  requestAnimationFrame(()=>{
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-  });
+function scroll(){
+  const m = document.getElementById("messages");
+  m.scrollTop = m.scrollHeight;
 }
 
-/* ---------- TYPING ---------- */
 function showTyping(){
-  const row = document.createElement('div');
-  row.className = "message bot-message";
-  row.id = "typing";
-
-  row.innerHTML = `
-    <div class="message-content typing-dots">
-      <span></span><span></span><span></span>
-    </div>
-  `;
-  messagesDiv.appendChild(row);
-  scrollToBottom();
+  const div = document.createElement("div");
+  div.className = "message bot";
+  div.id = "typing";
+  div.textContent = "Typing...";
+  document.getElementById("messages").appendChild(div);
+  scroll();
 }
 
 function removeTyping(){
@@ -175,76 +104,52 @@ function removeTyping(){
   if(t) t.remove();
 }
 
-/* ---------- RESPONSE ENGINE ---------- */
-function generateResponse(text){
-  text = text.toLowerCase();
+async function generateResponse(userText){
+  const messages = memory.flatMap(m => ([
+    { role:"user", content:m.user },
+    { role:"assistant", content:m.bot }
+  ]));
 
-  if(text.includes("hello")){
-    return "Hey there 👋";
-  }
+  messages.push({ role:"user", content:userText });
 
-  if(text.includes("code")){
-    return "Looks like you're talking about code. Want help debugging?";
-  }
+  const res = await fetch("http://localhost:3000/chat", {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ messages })
+  });
 
-  return "Interesting... tell me more.";
+  const data = await res.json();
+  return data.choices[0].message.content;
 }
 
-/* ---------- SEND ---------- */
-function sendMessage(){
+async function sendMessage(){
+  const input = document.getElementById("input");
   const text = input.value.trim();
-  if(!text || isTyping) return;
+  if(!text) return;
 
   addMessage(text, "user");
   input.value = "";
 
   showTyping();
-  isTyping = true;
 
-  setTimeout(()=>{
+  try{
+    const reply = await generateResponse(text);
+
     removeTyping();
-
-    const reply = generateResponse(text);
     addMessage(reply, "bot");
 
-    memory.push({user:text,bot:reply});
-    if(memory.length > MAX_MEMORY) memory.shift();
+    memory.push({ user:text, bot:reply });
+    if(memory.length > 10) memory.shift();
 
-    isTyping = false;
-  }, 1000);
-
-  // failsafe
-  setTimeout(()=>{ isTyping = false; }, 5000);
-}
-
-/* ---------- ENTER FIX ---------- */
-input.addEventListener("keydown", (e)=>{
-  if(e.key==="Enter"){
-    e.preventDefault();
-    sendMessage();
+  }catch{
+    removeTyping();
+    addMessage("⚠️ Error connecting to AI", "bot");
   }
-});
-
-/* ---------- CURSOR ---------- */
-document.addEventListener("mousemove",(e)=>{
-  cursor.style.left = e.clientX+"px";
-  cursor.style.top = e.clientY+"px";
-});
-
-/* ---------- SIDEBAR ---------- */
-const sidebar = document.getElementById("sidebar");
-sidebar.addEventListener("mouseenter",()=>sidebar.classList.add("expanded"));
-sidebar.addEventListener("mouseleave",()=>sidebar.classList.remove("expanded"));
-
-/* ---------- NEW CHAT ---------- */
-function newChat(){
-  messagesDiv.innerHTML = `
-    <div class="message bot-message">
-      <div class="message-content">New chat started.</div>
-    </div>
-  `;
-  memory = [];
 }
+
+document.getElementById("input").addEventListener("keydown", e=>{
+  if(e.key==="Enter") sendMessage();
+});
 </script>
 
 </body>
