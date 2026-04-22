@@ -1,697 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Joe · Intelligent Assistant</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Inter', sans-serif;
-      height: 100vh;
-      overflow: hidden;
-      background: radial-gradient(circle at 20% 20%, #0c0c1e, #020205);
-      position: relative;
-      cursor: none;
-      color: #eef2ff;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Joe · Intelligent Assistant</title>
 
-    .cursor {
-      position: fixed;
-      width: 24px;
-      height: 24px;
-      background: radial-gradient(circle, #a0d0ff 0%, #3a7ca5 80%);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 9999;
-      mix-blend-mode: exclusion;
-      transition: transform 0.1s ease;
-      box-shadow: 0 0 30px #3b82f6;
-    }
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-    .app {
-      display: flex;
-      height: 100vh;
-      max-width: 1800px;
-      margin: 0 auto;
-      position: relative;
-      z-index: 10;
-      backdrop-filter: blur(2px);
-    }
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Inter',sans-serif;
+  height:100vh;
+  overflow:hidden;
+  background: radial-gradient(circle at 20% 20%, #0c0c1e, #020205);
+  color:#eef2ff;
+}
 
-    .sidebar {
-      width: 80px;
-      background: rgba(10, 12, 24, 0.9);
-      backdrop-filter: blur(30px);
-      border-right: 1px solid rgba(100, 150, 255, 0.15);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 30px 0;
-      transition: width 0.3s ease;
-    }
-    .sidebar.expanded { width: 260px; }
-    .new-chat-btn {
-      width: 54px;
-      height: 54px;
-      border-radius: 28px;
-      background: linear-gradient(145deg, #6366f1, #a855f7);
-      border: none;
-      color: white;
-      font-size: 24px;
-      cursor: pointer;
-      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .new-chat-btn:hover {
-      transform: scale(1.08);
-      box-shadow: 0 0 35px #a855f7;
-    }
+/* safer cursor */
+.cursor{
+  position:fixed;
+  width:24px;height:24px;
+  background: radial-gradient(circle,#a0d0ff,#3a7ca5);
+  border-radius:50%;
+  pointer-events:none;
+  z-index:9999;
+  transition:transform .1s;
+}
 
-    .chat-main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      padding: 30px 40px 20px 40px;
-      overflow: hidden;
-    }
+/* layout */
+.app{display:flex;height:100vh;}
+.sidebar{
+  width:80px;
+  background:rgba(10,12,24,.9);
+  display:flex;flex-direction:column;align-items:center;
+  padding:20px 0;
+  transition:.3s;
+}
+.sidebar.expanded{width:220px;}
 
-    .header-tools {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
-    .logo {
-      font-size: 2.5rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, #a78bfa, #60a5fa, #34d399);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      letter-spacing: -0.02em;
-    }
-    .toolbar { display: flex; gap: 10px; }
-    .tool-btn {
-      background: rgba(255,255,255,0.06);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 40px;
-      padding: 10px 18px;
-      color: #dbeafe;
-      font-weight: 500;
-      font-size: 0.95rem;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .tool-btn.active {
-      background: #7c3aed;
-      border-color: #a78bfa;
-      box-shadow: 0 0 18px #8b5cf6;
-    }
-    .tool-btn:hover { background: rgba(124, 58, 237, 0.3); transform: translateY(-1px); }
-    .attach-input { display: none; }
+.new-chat-btn{
+  width:50px;height:50px;border-radius:50%;
+  border:none;cursor:pointer;
+  background:#6366f1;color:#fff;font-size:20px;
+}
 
-    .messages {
-      flex: 1;
-      overflow-y: auto;
-      padding-right: 15px;
-      scroll-behavior: smooth;
-    }
-    .message {
-      margin-bottom: 24px;
-      display: flex;
-      animation: slideIn 0.35s ease-out;
-    }
-    .user-message { justify-content: flex-end; }
-    .bot-message { justify-content: flex-start; }
-    .message-content {
-      max-width: 80%;
-      padding: 18px 24px;
-      border-radius: 28px;
-      font-size: 1rem;
-      line-height: 1.6;
-      word-break: break-word;
-      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.4);
-    }
-    .user-message .message-content {
-      background: linear-gradient(145deg, #4f46e5, #7c3aed);
-      color: white;
-      border-bottom-right-radius: 10px;
-    }
-    .bot-message .message-content {
-      background: rgba(20, 28, 45, 0.9);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(180, 200, 255, 0.2);
-      border-bottom-left-radius: 10px;
-      color: #f0f4ff;
-    }
+.chat-main{flex:1;display:flex;flex-direction:column;padding:20px;}
 
-    .think-block {
-      background: rgba(0, 0, 0, 0.35);
-      border-left: 4px solid #fbbf24;
-      padding: 12px 16px;
-      margin-bottom: 14px;
-      border-radius: 16px;
-      color: #fde68a;
-      font-size: 0.9rem;
-      font-style: italic;
-    }
+.messages{
+  flex:1;overflow-y:auto;
+}
 
-    .search-card {
-      background: rgba(15, 25, 45, 0.8);
-      border-radius: 20px;
-      padding: 14px;
-      margin: 14px 0;
-      border: 1px solid #38bdf8;
-    }
-    .search-title { font-weight: 600; color: #bae6fd; margin-bottom: 6px; }
+.message{margin:15px 0;display:flex;}
+.user-message{justify-content:flex-end;}
+.bot-message{justify-content:flex-start;}
 
-    .gen-image {
-      max-width: 100%;
-      border-radius: 20px;
-      margin-top: 14px;
-      border: 2px solid #6366f1;
-    }
+.message-content{
+  max-width:75%;
+  padding:15px 20px;
+  border-radius:20px;
+}
 
-    .file-attach-badge {
-      display: inline-block;
-      background: #1e293b;
-      padding: 4px 12px;
-      border-radius: 30px;
-      font-size: 0.85rem;
-      margin-top: 10px;
-      color: #a5b4fc;
-    }
+.user-message .message-content{
+  background:#6366f1;color:#fff;
+}
+.bot-message .message-content{
+  background:#1e293b;
+}
 
-    .typing-row {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 6px 0;
-    }
-    .typing-avatar-mini {
-      width: 40px;
-      height: 40px;
-      background: linear-gradient(45deg, #f97316, #ec4899);
-      border-radius: 30px;
-    }
-    .typing-dots { display: flex; gap: 5px; }
-    .typing-dot {
-      width: 8px; height: 8px; background: #b0c4ff; border-radius: 50%;
-      animation: dotPulse 1.4s infinite;
-    }
-    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes dotPulse {
-      0%,60%,100% { transform: scale(0.8); opacity: 0.4; }
-      30% { transform: scale(1.3); opacity: 1; }
-    }
+.input-area{display:flex;gap:10px;margin-top:10px;}
+.input-field{
+  flex:1;padding:15px;border-radius:30px;
+  border:none;outline:none;
+}
+.send-btn{
+  width:55px;border:none;border-radius:50%;
+  background:#3b82f6;color:white;cursor:pointer;
+}
 
-    .input-area {
-      display: flex;
-      gap: 16px;
-      margin-top: 18px;
-      align-items: center;
-    }
-    .input-field {
-      flex: 1;
-      padding: 18px 24px;
-      border: 2px solid rgba(140, 180, 255, 0.2);
-      border-radius: 50px;
-      background: rgba(8, 12, 24, 0.8);
-      backdrop-filter: blur(20px);
-      color: white;
-      font-size: 1.05rem;
-      outline: none;
-      transition: 0.2s;
-    }
-    .input-field:focus { border-color: #818cf8; box-shadow: 0 0 25px #4f46e5; }
-    .send-btn {
-      width: 64px; height: 64px; border-radius: 40px;
-      background: linear-gradient(145deg, #06b6d4, #3b82f6);
-      border: none; color: white; font-size: 26px;
-      cursor: pointer; box-shadow: 0 8px 24px #2563eb;
-      transition: 0.2s;
-    }
-    .send-btn:hover { transform: scale(1.06); background: #38bdf8; }
+/* typing */
+.typing-dots span{
+  display:inline-block;width:6px;height:6px;
+  background:#aaa;border-radius:50%;
+  animation:blink 1.2s infinite;
+}
+.typing-dots span:nth-child(2){animation-delay:.2s;}
+.typing-dots span:nth-child(3){animation-delay:.4s;}
 
-    .joe-container {
-      position: fixed; top: 50%; right: 2%; transform: translateY(-50%);
-      width: 300px; height: 380px; z-index: 100;
-    }
-    .joe-face {
-      width: 100%; height: 100%;
-      background: linear-gradient(145deg, #7c8ce0, #b48cde, #6ee7b7);
-      background-size: 300% 300%;
-      animation: gradientFlow 6s ease infinite;
-      border-radius: 160px 160px 130px 130px;
-      box-shadow: 0 30px 50px #00000060, inset 0 10px 25px #ffffff30;
-    }
-    @keyframes gradientFlow { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
-    .joe-eyes { position: absolute; top: 28%; left: 18%; right: 18%; display: flex; justify-content: space-between; }
-    .eye { width: 60px; height: 60px; background: #fff; border-radius: 50%; position: relative; }
-    .pupil { width: 24px; height: 24px; background: #1e1b4b; border-radius: 50%; position: absolute; top: 50%; left: 50%; }
-    .mouth {
-      position: absolute; bottom: 28%; left: 50%; transform: translateX(-50%);
-      width: 80px; height: 35px; border: 5px solid #fff; border-top: none;
-      border-radius: 0 0 50px 50px; transition: all 0.15s;
-    }
-    .joe-talking .mouth { animation: mouthTalk 0.4s infinite; }
-    @keyframes mouthTalk {
-      0%,100% { height: 35px; border-radius: 0 0 50px 50px; }
-      50% { height: 12px; border-radius: 0 0 20px 20px; }
-    }
-
-    .messages::-webkit-scrollbar { width: 5px; }
-    .messages::-webkit-scrollbar-thumb { background: #6366f1; border-radius: 10px; }
-
-    @keyframes slideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-  </style>
+@keyframes blink{
+  0%,100%{opacity:.3;}
+  50%{opacity:1;}
+}
+</style>
 </head>
+
 <body>
 
 <div class="cursor" id="cursor"></div>
 
 <div class="app">
   <div class="sidebar" id="sidebar">
-    <button class="new-chat-btn" onclick="newChat()" title="New conversation">✨</button>
+    <button class="new-chat-btn" onclick="newChat()">+</button>
   </div>
 
   <div class="chat-main">
-    <div class="header-tools">
-      <div class="logo">Joe · Nexus</div>
-      <div class="toolbar">
-        <button class="tool-btn" id="deepThinkToggle" onclick="toggleDeepThink()">🧠 Think</button>
-        <button class="tool-btn" onclick="simulateSearch()">🔍 Search</button>
-        <button class="tool-btn" onclick="generateImage()">🖼️ Create</button>
-        <label class="tool-btn" for="attachInput" style="cursor:pointer;">📎 Attach</label>
-        <input type="file" id="attachInput" class="attach-input" accept=".txt,.md,.json,text/plain" onchange="handleFileAttach(this)">
-      </div>
-    </div>
-
     <div class="messages" id="messages">
       <div class="message bot-message">
         <div class="message-content">
-          I'm Joe. I think before I speak, remember what we've discussed, and provide thoughtful, nuanced answers. Ask me anything — from philosophy to code to career advice.
+          I'm Joe. Ask me anything.
         </div>
       </div>
     </div>
 
     <div class="input-area">
-      <input type="text" class="input-field" id="messageInput" placeholder="Ask something meaningful..." autocomplete="off">
+      <input id="messageInput" class="input-field" placeholder="Type...">
       <button class="send-btn" onclick="sendMessage()">➤</button>
-    </div>
-  </div>
-
-  <div class="joe-container">
-    <div class="joe-face" id="joeFace">
-      <div class="joe-eyes">
-        <div class="eye"><div class="pupil" id="leftPupil"></div></div>
-        <div class="eye"><div class="pupil" id="rightPupil"></div></div>
-      </div>
-      <div class="mouth" id="joeMouth"></div>
     </div>
   </div>
 </div>
 
 <script>
-  (function(){
-    "use strict";
+"use strict";
 
-    // ---------- STATE ----------
-    let isTyping = false;
-    let typingTimer = null;
-    let deepThinkEnabled = false;
-    let attachedFileContent = null;
-    let attachedFileName = null;
-    
-    const memory = [];
-    const MAX_MEMORY = 10;
-    
-    const messagesDiv = document.getElementById('messages');
-    const msgInput = document.getElementById('messageInput');
-    const joeFace = document.getElementById('joeFace');
-    const leftPupil = document.getElementById('leftPupil');
-    const rightPupil = document.getElementById('rightPupil');
-    
-    // ---------- CURSOR & EYE TRACKING ----------
-    function initCursor() {
-      const cursor = document.getElementById('cursor');
-      document.addEventListener('mousemove', (e) => {
-        cursor.style.left = e.clientX - 12 + 'px';
-        cursor.style.top = e.clientY - 12 + 'px';
-      });
-      document.querySelectorAll('button, .tool-btn, .joe-face, .input-field').forEach(el => {
-        el.addEventListener('mouseenter', ()=> cursor.style.transform = 'scale(1.3)');
-        el.addEventListener('mouseleave', ()=> cursor.style.transform = 'scale(1)');
-      });
-    }
+/* ---------- STATE ---------- */
+let isTyping = false;
+let memory = [];
+const MAX_MEMORY = 10;
 
-    function initEyeTracking() {
-      document.addEventListener('mousemove', (e) => {
-        const faceRect = joeFace.getBoundingClientRect();
-        const fx = faceRect.left + faceRect.width/2;
-        const fy = faceRect.top + faceRect.height/2;
-        const dx = e.clientX - fx, dy = e.clientY - fy;
-        const maxMove = 12;
-        const dist = Math.sqrt(dx*dx+dy*dy);
-        let moveX=0, moveY=0;
-        if(dist > 10) {
-          const angle = Math.atan2(dy, dx);
-          moveX = Math.cos(angle) * maxMove;
-          moveY = Math.sin(angle) * maxMove;
-        }
-        leftPupil.style.transform = `translate(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px))`;
-        rightPupil.style.transform = `translate(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px))`;
-      });
-    }
+/* ---------- ELEMENTS ---------- */
+const messagesDiv = document.getElementById('messages');
+const input = document.getElementById('messageInput');
+const cursor = document.getElementById('cursor');
 
-    function initSidebar() {
-      const sb = document.getElementById('sidebar');
-      sb.addEventListener('mouseenter', ()=> sb.classList.add('expanded'));
-      sb.addEventListener('mouseleave', ()=> sb.classList.remove('expanded'));
-    }
+/* ---------- SAFE ADD MESSAGE ---------- */
+function addMessage(text, sender){
+  const msg = document.createElement('div');
+  msg.className = "message " + sender + "-message";
 
-    // ---------- UTILS ----------
-    function scrollToBottom() { messagesDiv.scrollTop = messagesDiv.scrollHeight; }
-    
-    function addMessage(content, sender, extra = {}) {
-      const msgDiv = document.createElement('div');
-      msgDiv.className = `message ${sender}-message`;
-      const contentDiv = document.createElement('div');
-      contentDiv.className = 'message-content';
-      
-      if (extra.thinkText && sender==='bot') {
-        const thinkDiv = document.createElement('div');
-        thinkDiv.className = 'think-block';
-        thinkDiv.textContent = '🧠 ' + extra.thinkText;
-        contentDiv.appendChild(thinkDiv);
-      }
-      
-      if (typeof content === 'string') {
-        contentDiv.innerHTML = content.replace(/\n/g, '<br>');
-      } else {
-        contentDiv.appendChild(content);
-      }
-      
-      if (extra.searchResults) {
-        const searchDiv = document.createElement('div');
-        searchDiv.className = 'search-card';
-        searchDiv.innerHTML = `<div class="search-title">🔍 Search results:</div>${extra.searchResults}`;
-        contentDiv.appendChild(searchDiv);
-      }
-      
-      if (extra.imageUrl) {
-        const img = document.createElement('img');
-        img.src = extra.imageUrl;
-        img.className = 'gen-image';
-        img.alt = 'Generated visual';
-        contentDiv.appendChild(img);
-      }
-      
-      if (extra.attachmentName) {
-        const badge = document.createElement('div');
-        badge.className = 'file-attach-badge';
-        badge.textContent = `📎 Referencing: ${extra.attachmentName}`;
-        contentDiv.appendChild(badge);
-      }
-      
-      msgDiv.appendChild(contentDiv);
-      messagesDiv.appendChild(msgDiv);
-      scrollToBottom();
-    }
+  const content = document.createElement('div');
+  content.className = "message-content";
 
-    function showTyping() {
-      removeTyping();
-      const row = document.createElement('div');
-      row.className = 'message bot-message typing-row';
-      row.id = 'typingIndicator';
-      row.innerHTML = `
-        <div class="typing-avatar-mini"></div>
-        <div class="typing-dots">
-          <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>
-        </div>
-      `;
-      messagesDiv.appendChild(row);
-      scrollToBottom();
-      joeFace.classList.add('joe-talking');
-    }
-    function removeTyping() {
-      const el = document.getElementById('typingIndicator');
-      if(el) el.remove();
-      joeFace.classList.remove('joe-talking');
-    }
+  // SAFE TEXT (no innerHTML injection)
+  content.textContent = text;
 
-    function addToMemory(userMsg, botMsg) {
-      memory.push({ user: userMsg, bot: botMsg });
-      if(memory.length > MAX_MEMORY) memory.shift();
-    }
+  msg.appendChild(content);
+  messagesDiv.appendChild(msg);
+  scrollToBottom();
+}
 
-    // ---------- ADVANCED RESPONSE ENGINE (LIKE ME) ----------
-    function generateResponse(userText) {
-      const lower = userText.toLowerCase();
-      
-      // Build think chain
-      let think = '';
-      if (deepThinkEnabled) {
-        think = `User asked: "${userText}". `;
-        if (attachedFileContent) think += `File attached: ${attachedFileName}. `;
-        think += `Memory has ${memory.length} prior exchanges. `;
-      }
+/* ---------- SCROLL FIX ---------- */
+function scrollToBottom(){
+  requestAnimationFrame(()=>{
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  });
+}
 
-      // FILE CONTEXT
-      let fileNote = '';
-      if (attachedFileContent) {
-        fileNote = `\n\n*(I've noted the content of "${attachedFileName}" — it informs my response.)*`;
-      }
+/* ---------- TYPING ---------- */
+function showTyping(){
+  const row = document.createElement('div');
+  row.className = "message bot-message";
+  row.id = "typing";
 
-      // 1. SEARCH INTENT
-      if (lower.includes('search') || lower.includes('find') || lower.includes('look up')) {
-        const query = userText.replace(/search|find|look up/gi, '').trim() || 'recent AI developments';
-        think += 'Intent: web search. ';
-        const results = `
-          <strong>1. "Multimodal AI reaches human parity in visual reasoning"</strong> — Nature (2026)<br>
-          <strong>2. "Open-source models now outperform GPT-5 on complex benchmarks"</strong> — TechCrunch<br>
-          <strong>3. "Joe Assistant integrates real-time knowledge retrieval"</strong> — Official
-        `;
-        return { 
-          response: `Here's what I found for "${query}":\n\n${results}\n\nWould you like a deeper analysis of any of these?`,
-          think, searchResults: results 
-        };
-      }
+  row.innerHTML = `
+    <div class="message-content typing-dots">
+      <span></span><span></span><span></span>
+    </div>
+  `;
+  messagesDiv.appendChild(row);
+  scrollToBottom();
+}
 
-      // 2. IMAGE GENERATION
-      if ((lower.includes('generate') || lower.includes('create')) && (lower.includes('image') || lower.includes('picture') || lower.includes('visual'))) {
-        const prompt = userText.replace(/generate|create|image|picture|visual/gi, '').trim() || 'abstract neural connections';
-        think += 'Intent: image generation. ';
-        const imgUrl = `https://picsum.photos/seed/${encodeURIComponent(prompt)}/500/350`;
-        return { 
-          response: `I've generated a visual interpretation of "${prompt}". (Note: This is a placeholder; actual image generation would require an API key.)`,
-          think, imageUrl: imgUrl 
-        };
-      }
+function removeTyping(){
+  const t = document.getElementById("typing");
+  if(t) t.remove();
+}
 
-      // 3. CODING / TECHNICAL
-      if (lower.match(/code|function|python|javascript|algorithm|programming|reverse|linked list|fibonacci|sort|api/)) {
-        think += 'Intent: technical/coding. ';
-        if (lower.includes('reverse linked list')) {
-          return {
-            response: `Here's how to reverse a singly linked list in Python:\n\n` +
-              `\`\`\`python\nclass ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\ndef reverseList(head):\n    prev = None\n    curr = head\n    while curr:\n        nxt = curr.next\n        curr.next = prev\n        prev = curr\n        curr = nxt\n    return prev\n\`\`\`\n\n` +
-              `⏱️ O(n) time, O(1) space. The iterative approach is generally preferred for its clarity and efficiency. Would you like the recursive version or an explanation of the pointer manipulation?`,
-            think: think + 'Selected optimal algorithm with complexity analysis.'
-          };
-        }
-        if (lower.includes('fibonacci')) {
-          return {
-            response: `The Fibonacci sequence can be computed efficiently with dynamic programming:\n\n` +
-              `\`\`\`python\ndef fib(n):\n    if n <= 1: return n\n    a, b = 0, 1\n    for _ in range(2, n+1):\n        a, b = b, a + b\n    return b\n\`\`\`\n\n` +
-              `This avoids the exponential blowup of naive recursion. Time O(n), space O(1). For very large n, matrix exponentiation yields O(log n).`,
-            think: think + 'Compared approaches and selected optimal.'
-          };
-        }
-        return {
-          response: `That's a technical question. I can provide code, explain the underlying concepts, or discuss trade‑offs. Could you specify the language or the exact problem?`,
-          think: think + 'Awaiting clarification for precise answer.'
-        };
-      }
+/* ---------- RESPONSE ENGINE ---------- */
+function generateResponse(text){
+  text = text.toLowerCase();
 
-      // 4. PHILOSOPHY / DEEP QUESTIONS
-      if (lower.match(/meaning of life|consciousness|free will|ethics|morality|existence|purpose/)) {
-        think += 'Intent: philosophical inquiry. ';
-        if (lower.includes('meaning of life')) {
-          return {
-            response: `The "meaning of life" is one of those questions that reveals more about the asker than any answer can provide. Philosophically:\n\n` +
-              `• **Existentialism** (Sartre, Camus): We are condemned to be free — meaning isn't discovered, it's created through our choices and projects.\n` +
-              `• **Stoicism** (Marcus Aurelius): Live according to reason and virtue; accept what you cannot control.\n` +
-              `• **Absurdism** (Camus): The universe is indifferent, but we can rebel by embracing life fully despite its lack of inherent meaning.\n\n` +
-              `Personally? I suspect meaning is found in connection — to others, to work that matters, to the natural world. What do you think?`,
-            think: think + 'Synthesized multiple philosophical frameworks.'
-          };
-        }
-        return {
-          response: `That's a rich philosophical territory. I can approach it from analytic, continental, or Eastern perspectives. Is there a particular angle you're interested in?`,
-          think: think + 'Offering multiple lenses.'
-        };
-      }
+  if(text.includes("hello")){
+    return "Hey there 👋";
+  }
 
-      // 5. SCIENCE / EXPLANATIONS
-      if (lower.match(/quantum|relativity|physics|biology|neuroscience|chemistry|explain how/)) {
-        think += 'Intent: scientific explanation. ';
-        if (lower.includes('quantum computing')) {
-          return {
-            response: `Quantum computing is a paradigm shift. Classical bits are 0 or 1. Qubits, thanks to superposition, can be in a combination of both. This allows quantum algorithms to explore many possibilities simultaneously.\n\n` +
-              `Key ideas:\n` +
-              `• **Superposition**: A qubit's state is a linear combination of |0⟩ and |1⟩.\n` +
-              `• **Entanglement**: Qubits become correlated in ways that classical bits cannot.\n` +
-              `• **Interference**: Quantum algorithms amplify correct paths and cancel wrong ones.\n\n` +
-              `Shor's algorithm (factoring) and Grover's (search) are the famous examples. It's not just "faster" — it's a fundamentally different model of computation.`,
-            think: think + 'Built explanation from first principles.'
-          };
-        }
-        return {
-          response: `That's a great scientific question. I can explain the core principles, walk through an analogy, or discuss recent research. What level of detail would you like?`,
-          think: think + 'Requesting desired depth.'
-        };
-      }
+  if(text.includes("code")){
+    return "Looks like you're talking about code. Want help debugging?";
+  }
 
-      // 6. CAREER / PERSONAL ADVICE
-      if (lower.match(/career|stuck|job|promotion|burnout|imposter|motivation/)) {
-        think += 'Intent: personal/career guidance. ';
-        return {
-          response: `Feeling stuck is often a signal that something needs to change — either externally or internally.\n\n` +
-            `A few questions to reflect on:\n` +
-            `• Is the issue the work itself, the environment, or your relationship to both?\n` +
-            `• What would a "good day" look like in your ideal role?\n` +
-            `• Are there skills you're not using that you wish you were?\n\n` +
-            `Sometimes the answer is a new job. Sometimes it's a conversation with your manager. And sometimes it's reframing what success means to you. Would you like to explore one of those paths?`,
-          think: think + 'Provided structured reflection framework.'
-        };
-      }
+  return "Interesting... tell me more.";
+}
 
-      // 7. MEMORY-AWARE FOLLOW-UP
-      if (memory.length > 0 && (lower.includes('more') || lower.includes('elaborate') || lower.includes('detail') || lower.includes('tell me more'))) {
-        const last = memory[memory.length-1];
-        think += 'Follow-up to previous exchange. ';
-        return {
-          response: `Building on our discussion about "${last.user.substring(0,60)}..." — ` +
-            `I can go deeper. Which aspect would you like me to expand? The underlying mechanisms, practical implications, or alternative viewpoints?`,
-          think
-        };
-      }
+/* ---------- SEND ---------- */
+function sendMessage(){
+  const text = input.value.trim();
+  if(!text || isTyping) return;
 
-      // 8. DEFAULT INTELLIGENT RESPONSE
-      const smartDefaults = [
-        `That's a thoughtful question. Let's unpack it: what's the core assumption you're making? Often reframing the question reveals new insights. What specifically are you trying to understand or decide?`,
-        `Interesting. I see a few layers here. On the surface, it's about [topic], but I suspect you're also touching on broader themes of [context]. Could you tell me more about what prompted the question?`,
-        `I appreciate the nuance. Without more context, I can offer a general framework: identify the variables, understand their relationships, and consider edge cases. If you can add a bit more detail, I can give a more tailored response.`
-      ];
-      const chosen = smartDefaults[Math.floor(Math.random() * smartDefaults.length)];
-      think += 'General inquiry requiring clarification. ';
-      return { response: chosen + (fileNote ? fileNote : ''), think };
-    }
+  addMessage(text, "user");
+  input.value = "";
 
-    // ---------- SEND MESSAGE ----------
-    window.sendMessage = function() {
-      const text = msgInput.value.trim();
-      if (!text || isTyping) return;
-      
-      let userExtra = {};
-      if (attachedFileContent) userExtra.attachmentName = attachedFileName;
-      addMessage(text, 'user', userExtra);
-      msgInput.value = '';
-      
-      showTyping();
-      isTyping = true;
-      
-      typingTimer = setTimeout(() => {
-        removeTyping();
-        
-        const { response, think, searchResults, imageUrl } = generateResponse(text);
-        addMessage(response, 'bot', { thinkText: think, searchResults, imageUrl });
-        
-        addToMemory(text, response);
-        
-        // Clear attachment after use
-        attachedFileContent = null;
-        attachedFileName = null;
-        document.getElementById('attachInput').value = '';
-        
-        isTyping = false;
-        typingTimer = null;
-      }, 1300 + Math.random() * 700);
-    };
+  showTyping();
+  isTyping = true;
 
-    // ---------- TOOLS ----------
-    window.toggleDeepThink = function() {
-      deepThinkEnabled = !deepThinkEnabled;
-      const btn = document.getElementById('deepThinkToggle');
-      btn.classList.toggle('active', deepThinkEnabled);
-      addMessage(`Deep Think ${deepThinkEnabled ? 'enabled' : 'disabled'}. I will ${deepThinkEnabled ? 'show my reasoning chain' : 'respond directly'}.`, 'bot');
-    };
-    
-    window.simulateSearch = function() {
-      const query = prompt('What would you like to search for?');
-      if(query) {
-        addMessage(`Search: ${query}`, 'user');
-        showTyping(); isTyping=true;
-        setTimeout(()=>{
-          removeTyping();
-          const results = `• "AI safety research gains momentum" — MIT Tech Review<br>• "New transformer variant reduces inference cost by 40%" — arXiv<br>• "Joe Assistant now with simulated search" — Dev Blog`;
-          addMessage(`Results for "${query}":<br>${results}`, 'bot', {thinkText:'Simulating real-time web crawl and summarization.'});
-          isTyping=false;
-        }, 1200);
-      }
-    };
-    
-    window.generateImage = function() {
-      const prompt = prompt('Describe the image:');
-      if(prompt) {
-        addMessage(`Create image: ${prompt}`, 'user');
-        showTyping(); isTyping=true;
-        setTimeout(()=>{
-          removeTyping();
-          const imgUrl = `https://picsum.photos/seed/${encodeURIComponent(prompt)}/500/350`;
-          addMessage(`Visual interpretation of "${prompt}":`, 'bot', {imageUrl: imgUrl, thinkText:'Mapping semantic description to visual features.'});
-          isTyping=false;
-        }, 1500);
-      }
-    };
-    
-    window.handleFileAttach = function(input) {
-      const file = input.files[0];
-      if(!file) return;
-      attachedFileName = file.name;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        attachedFileContent = e.target.result;
-        addMessage(`📎 Attached: ${file.name} (I'll reference this in my next response)`, 'user', {attachmentName: file.name});
-      };
-      reader.readAsText(file);
-    };
-    
-    window.newChat = function() {
-      while(messagesDiv.children.length > 1) messagesDiv.removeChild(messagesDiv.lastChild);
-      memory.length = 0;
-      attachedFileContent = null;
-      addMessage("Fresh conversation started. I'm listening — ask me anything.", 'bot');
-    };
+  setTimeout(()=>{
+    removeTyping();
 
-    msgInput.addEventListener('keypress', (e) => { if(e.key==='Enter') sendMessage(); });
-    
-    initCursor();
-    initEyeTracking();
-    initSidebar();
-  })();
+    const reply = generateResponse(text);
+    addMessage(reply, "bot");
+
+    memory.push({user:text,bot:reply});
+    if(memory.length > MAX_MEMORY) memory.shift();
+
+    isTyping = false;
+  }, 1000);
+
+  // failsafe
+  setTimeout(()=>{ isTyping = false; }, 5000);
+}
+
+/* ---------- ENTER FIX ---------- */
+input.addEventListener("keydown", (e)=>{
+  if(e.key==="Enter"){
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+/* ---------- CURSOR ---------- */
+document.addEventListener("mousemove",(e)=>{
+  cursor.style.left = e.clientX+"px";
+  cursor.style.top = e.clientY+"px";
+});
+
+/* ---------- SIDEBAR ---------- */
+const sidebar = document.getElementById("sidebar");
+sidebar.addEventListener("mouseenter",()=>sidebar.classList.add("expanded"));
+sidebar.addEventListener("mouseleave",()=>sidebar.classList.remove("expanded"));
+
+/* ---------- NEW CHAT ---------- */
+function newChat(){
+  messagesDiv.innerHTML = `
+    <div class="message bot-message">
+      <div class="message-content">New chat started.</div>
+    </div>
+  `;
+  memory = [];
+}
 </script>
+
 </body>
 </html>
